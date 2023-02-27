@@ -20,6 +20,9 @@
   <depend>visualization_msgs</depend>
   <depend>Eigen3</depend>
   <depend>tf2_ros</depend>
+  <depend>interfaces_hot_wheels</depend>
+
+  <exec_depend>ros2launch</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

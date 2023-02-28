@@ -155,7 +155,7 @@ public:
 
                 p.x = v[0]; // str to double
                 p.y = v[1];
-                p.v = v[2];
+                p.v = v[3];
 
                 waypoints.push_back(p);        
 

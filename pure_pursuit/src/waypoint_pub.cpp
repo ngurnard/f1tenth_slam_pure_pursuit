@@ -1,4 +1,4 @@
-#include <sstream>
+#include <fstream>
 #include <string>
 #include <cmath>
 #include <vector>
@@ -17,6 +17,7 @@ using namespace std;
 #include <tf2_ros/buffer.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2/LinearMath/Quaternion.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include "interfaces_hot_wheels/msg/waypoint.hpp"
 
@@ -30,18 +31,70 @@ private:
 
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr pose_sub_;
 
-    rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr vis_pub_;
+    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr vis_pub_;
     rclcpp::Publisher<interfaces_hot_wheels::msg::Waypoint>::SharedPtr wpt_pub_;
 
     std::vector<interfaces_hot_wheels::msg::Waypoint> waypoints;
 
-    rclcpp::TimerBase::SharedPtr timer_{nullptr};
-    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr publisher_{nullptr};
     std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
     std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
     std::string source_frame_;
     std::string target_frame_;
     
+    void pose_callback(const geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg)
+    {
+        // TODO: Find optimum waypoint
+        // TODO: transform goal point to vehicle frame of reference
+    
+        geometry_msgs::msg::TransformStamped map_to_baselink;
+        std::string SrcFrameRel = source_frame_.c_str();
+        std::string TarFrameRel = target_frame_.c_str();
+
+        try {
+            map_to_baselink = tf_buffer_->lookupTransform(
+            TarFrameRel, SrcFrameRel, // world waypoints in terms of cars frame. From world to car = ^{car}T_{world}
+            tf2::TimePointZero); // get the latest available transform
+        } catch (const tf2::TransformException & ex) {
+            RCLCPP_INFO(
+            this->get_logger(), "Could not transform %s to %s: %s",
+            TarFrameRel.c_str(), SrcFrameRel.c_str(), ex.what());
+            return;
+        }
+
+        double min_dist = MAXFLOAT;
+        interfaces_hot_wheels::msg::Waypoint next_point;
+        
+        for (auto wpt : waypoints) {
+            
+            geometry_msgs::msg::PoseStamped wpt_transformed;
+            wpt_transformed.header.stamp = pose_msg->header.stamp;
+            wpt_transformed.pose.position.x = wpt.x;
+            wpt_transformed.pose.position.y = wpt.y;
+            wpt_transformed.pose.position.z = 0;
+            wpt_transformed.pose.orientation.x = 0;
+            wpt_transformed.pose.orientation.y = 0;
+            wpt_transformed.pose.orientation.z = 0;
+            wpt_transformed.pose.orientation.w = 1;
+            tf2::doTransform(wpt_transformed, wpt_transformed, map_to_baselink);
+
+            // skip if not in front of the vehicle
+            if(wpt_transformed.pose.position.x < 0.0){
+                continue;
+            }
+
+            double dist = sqrt(pow(wpt_transformed.pose.position.x, 2)
+                            + pow(wpt_transformed.pose.position.y, 2)); // l2 norm
+            if(dist < min_dist && dist > this->get_parameter("L").get_parameter_value().get<float>()){
+                min_dist = dist;
+                next_point.x = wpt_transformed.pose.position.x;
+                next_point.y = wpt_transformed.pose.position.y;
+            }
+        }
+
+        next_point.v = 2.0;
+        next_point.l = this->get_parameter("L").get_parameter_value().get<float>();
+        wpt_pub_->publish(next_point);
+    }
 
 public:
     // default contructor
@@ -77,24 +130,32 @@ public:
     {
         std::string fname = "waypoints/levine.csv";
         
-        std::string line;
-        fstream file (fname, ios::in);
+        std::string line, s;
+        std::fstream file (fname, ios::in);
 
         visualization_msgs::msg::MarkerArray marker_array;  
         visualization_msgs::msg::Marker marker;
+
+        std::vector<double> v;
         
         if(file.is_open())
         {
             int marker_id = 1;
             while(getline(file, line))
             {
-                std::vector<std::string> vec;
-                boost::algorithm::split(vec, line, boost::is_any_of(",")); // split str with delimiter
                 interfaces_hot_wheels::msg::Waypoint p;
 
-                p.x = std::stod(vec[0]); // str to double
-                p.y = std::stod(vec[1]);
-                p.v = std::stod(vec[2]);
+                stringstream ss(line);
+
+                while(getline(ss, s, ',')) 
+                {
+                    // store token string in the vector
+                    v.push_back(stod(s));
+                }
+
+                p.x = v[0]; // str to double
+                p.y = v[1];
+                p.v = v[2];
 
                 waypoints.push_back(p);        
 
@@ -110,74 +171,13 @@ public:
                 marker.color.g = 0.0;
                 marker.color.b = 1.0;
                 marker_array.markers.push_back(marker);
+
+                v.clear();
             }
         }
         vis_pub_->publish(marker_array);
     }
 
-    void pose_callback(const geometry_msgs::msg::PoseStamped::ConstPtr &pose_msg)
-    {
-        float x = pose_msg->pose.position.x;
-        float y = pose_msg->pose.position.y;
-        geometry_msgs::msg::Quaternion quat = pose_msg->pose.orientation;
-
-        // TODO: Find optimum waypoint
-
-        // TODO: transform goal point to vehicle frame of reference
-        geometry_msgs::msg::TransformStamped map_to_baselink;
-        std::string SrcFrameRel = source_frame_.c_str();
-        std::string TarFrameRel = target_frame_.c_str();
-
-        try {
-          map_to_baselink = tf_buffer_->lookupTransform(
-            TarFrameRel, SrcFrameRel, // world waypoints in terms of cars frame. From world to car = ^{car}T_{world}
-            tf2::TimePointZero); // get the latest available transform
-        } catch (const tf2::TransformException & ex) {
-          RCLCPP_INFO(
-            this->get_logger(), "Could not transform %s to %s: %s",
-            TarFrameRel.c_str(), SrcFrameRel.c_str(), ex.what());
-          return;
-        }
-
-        // draw it out to see
-        // Pmap is given as x or y
-        // T is the tranform ^{car}T_{world}
-        // Pcar = Pmap + T
-
-        // for each undefined waypoints
-
-        double min_dist = std::numeric_limits<double>::max();
-        interfaces_hot_wheels::msg::Waypoint next_point;
-        
-        for (auto wpt : waypoints) {
-            
-            geometry_msgs::msg::Pose wpt_transformed;
-            wpt_transformed.position.x = wpt.x;
-            wpt_transformed.position.y = wpt.y;
-            wpt_transformed.position.z = 0;
-            wpt_transformed.orientation.x = 0;
-            wpt_transformed.orientation.y = 0;
-            wpt_transformed.orientation.z = 0;
-            wpt_transformed.orientation.w = 1;
-            tf2::doTransform(wpt_transformed, wpt_transformed, map_to_baselink);
-
-            if(wpt_transformed.x < 0.0){
-                continue;
-            }
-
-            double dist = sqrt(pow(wpt_transformed.x, 2) + pow(wpt_transformed.y, 2));
-            if(dist < min_dist && dist > this->get_parameter("L").get_parameter_value().get<float>()){
-                min_dist = dist;
-                next_point.x = wpt_transformed.x;
-                next_point.y = wpt_transformed.y;
-            }
-        }
-
-        next_point.v = 2.0;
-        next_point.l = this->get_parameter("L").get_parameter_value().get<float>();
-        wpt_pub_->publish(next_point);
-        
-    }
     
     ~Waypoint() {}
 };

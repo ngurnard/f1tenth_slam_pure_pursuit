@@ -21,46 +21,12 @@ class PurePursuit : public rclcpp::Node
     // This is just a template, you are free to implement your own node!
 
 private:
-    double x, y, v, L; // position [x,y] and velocity at point, v
-    double theta;   // curvature
-
-    std::string cur_wpt_topic_ = "/waypoint";
-    std::string drive_topic_ = "/drive";
-    std::string vis_topic_ = "/vis";
-
-    rclcpp::Subscription<geometry_msgs::msg::Vector3>::SharedPtr waypoint_sub_;
-    
-    rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr drive_pub_;
-    rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr vis_pub_;
-
-
-
-public:
-    PurePursuit() :
-        Node("pure_pursuit_node"),
-        waypoint_sub_(this->create_subscription<interfaces_hot_wheels::msg::Waypoint>(
-            cur_wpt_topic_, 1, std::bind(&PurePursuit::waypoint_callback, this, std::placeholders::_1))),
-        drive_pub_(this->create_publisher<ackermann_msgs::msg::AckermannDriveStamped>(
-            drive_topic_, 1)),
-        vis_pub_(this->create_publisher<visualization_msgs::msg::MarkerArray>(
-            vis_topic_, 1)),
-        x(0.0),
-        y(0.0),
-        v(0.0),
-        L(1.0),
-        theta(0.0)
-    {
-        // TODO: create ROS subscribers and publishers
- 
-        this->declare_parameter("Kp", 0.36);
-    }
-    
-    void waypoint_callback(const interfaces_hot_wheels::msg::Waypoint::ConstPtr &waypoint)
+    void waypoint_callback(const interfaces_hot_wheels::msg::Waypoint::ConstSharedPtr waypoint)
     {
         // TODO: find the current waypoint to track using methods mentioned in lecture
         x = waypoint->x;
         y = waypoint->y;
-        v = waypoint->z;
+        v = waypoint->v;
         L = waypoint->l;
 
         // TODO: calculate curvature/steering angle
@@ -91,6 +57,41 @@ public:
         marker_array.markers.push_back(marker);
         vis_pub_->publish(marker_array);
     }
+
+    double x, y, v, L; // position [x,y] and velocity at point, v
+    double theta;   // curvature
+
+    std::string cur_wpt_topic_ = "/waypoint";
+    std::string drive_topic_ = "/drive";
+    std::string vis_topic_ = "/vis";
+
+    rclcpp::Subscription<interfaces_hot_wheels::msg::Waypoint>::SharedPtr waypoint_sub_;
+    
+    rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr drive_pub_;
+    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr vis_pub_;
+
+
+
+public:
+    PurePursuit() :
+        Node("pure_pursuit_node"),
+        x(0.0),
+        y(0.0),
+        v(0.0),
+        L(1.0),
+        theta(0.0)
+    {
+        // TODO: create ROS subscribers and publishers
+        waypoint_sub_ = this->create_subscription<interfaces_hot_wheels::msg::Waypoint>(
+            cur_wpt_topic_, 1, std::bind(&PurePursuit::waypoint_callback, this, std::placeholders::_1));
+        drive_pub_ = this->create_publisher<ackermann_msgs::msg::AckermannDriveStamped>(
+            drive_topic_, 1);
+        vis_pub_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
+            vis_topic_, 1);
+ 
+        this->declare_parameter("Kp", 0.36);
+    }
+    
 
     ~PurePursuit() {}
 };

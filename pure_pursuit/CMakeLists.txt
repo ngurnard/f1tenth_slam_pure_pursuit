@@ -24,6 +24,7 @@ foreach(PACKAGE
   visualization_msgs
   Eigen3
   tf2_ros
+  tf2_geometry_msgs
   interfaces_hot_wheels)
 
   find_package(${PACKAGE} REQUIRED)
@@ -43,10 +44,10 @@ ament_target_dependencies(pure_pursuit_node
 )
 add_executable(waypoint_node src/waypoint_pub.cpp)
 ament_target_dependencies(waypoint_node 
-  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros interfaces_hot_wheels
+  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros interfaces_hot_wheels tf2_geometry_msgs
 )
 add_executable(pose_fake_pub_node src/pose_fake_pub.cpp)
-ament_target_dependencies(waypoint_node 
+ament_target_dependencies(pose_fake_pub_node 
   rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros interfaces_hot_wheels
 )
 
@@ -63,6 +64,7 @@ ament_python_install_package(${PROJECT_NAME})
 # Install Python executables
 install(PROGRAMS
   scripts/pure_pursuit_node.py
+  scripts/waypoint_logger.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

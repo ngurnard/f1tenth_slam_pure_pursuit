@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import rospy
+import rclpy
 import numpy as np
 import atexit
 from os.path import expanduser
@@ -18,12 +18,12 @@ def save_waypoint(data):
                            data.pose.pose.orientation.z, 
                            data.pose.pose.orientation.w])
 
-    euler = tf.transformations.euler_from_quaternion(quaternion)
+    euler = euler_from_quaternion(quaternion)
     speed = LA.norm(np.array([data.twist.twist.linear.x, 
                               data.twist.twist.linear.y, 
                               data.twist.twist.linear.z]),2)
     if data.twist.twist.linear.x>0.:
-        print data.twist.twist.linear.x
+        print(data.twist.twist.linear.x)
 
     file.write('%f, %f, %f, %f\n' % (data.pose.pose.position.x,
                                      data.pose.pose.position.y,
@@ -35,14 +35,17 @@ def shutdown():
     print('Goodbye')
  
 def listener():
-    rospy.init_node('waypoints_logger', anonymous=True)
-    rospy.Subscriber('ego_racecar/odom', Odometry, save_waypoint)
-    rospy.spin()
+    rclpy.init_node('waypoints_logger', anonymous=True)
+    rclpy.Subscriber('ego_racecar/odom', Odometry, save_waypoint)
+    rate = rclpy.Rate(0.5)
+    while rclpy.ok():
+        rclpy.spin_once(timeout_sec=100)
+        rate.sleep()
 
 if __name__ == '__main__':
     atexit.register(shutdown)
     print('Saving waypoints...')
     try:
         listener()
-    except rospy.ROSInterruptException:
+    except rclpy.ROSInterruptException:
         pass

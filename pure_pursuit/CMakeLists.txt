@@ -24,7 +24,6 @@ foreach(PACKAGE
   visualization_msgs
   Eigen3
   tf2_ros
-  tf_transformations
   interfaces_hot_wheels)
 
   find_package(${PACKAGE} REQUIRED)

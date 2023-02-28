@@ -3,8 +3,6 @@
 #include <cmath>
 #include <vector>
 
-using namespace std;
-
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
 #include "nav_msgs/msg/odometry.hpp"
@@ -15,7 +13,9 @@ using namespace std;
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2/LinearMath/Quaternion.h>
 
-class PubSub : public rclcpp::Node
+using namespace std;
+
+class PosePubSub : public rclcpp::Node
 {
 
 private:
@@ -29,7 +29,7 @@ private:
 
 public:
     // default contructor
-    PubSub() : Node("pose_fake_pub_node") {
+    PosePubSub() : Node("pose_fake_pub_node") {
 
         // auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
         // param_desc.description = "Lookahead distance for Pure Pursuit";
@@ -39,7 +39,7 @@ public:
             wpt_topic_, 1);
 
         odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
-            odom_topic_, 1, std::bind(&PubSub::odom_callback, this, std::placeholders::_1));
+            odom_topic_, 1, std::bind(&PosePubSub::odom_callback, this, std::placeholders::_1));
 
     }
 
@@ -52,6 +52,14 @@ public:
         pose_pub_->publish(p);
     }
 
-    ~PubSub() {}
+    ~PosePubSub() {}
 };
+
+int main(int argc, char **argv)
+{
+    rclcpp::init(argc, argv);
+    rclcpp::spin(std::make_shared<PosePubSub>());
+    rclcpp::shutdown();
+    return 0;
+}
 

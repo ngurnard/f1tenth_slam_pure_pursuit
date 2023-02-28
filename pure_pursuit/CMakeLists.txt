@@ -39,15 +39,15 @@ include_directories(
 # Create Cpp executable
 add_executable(pure_pursuit_node src/pure_pursuit_node.cpp)
 ament_target_dependencies(pure_pursuit_node 
-  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros
+  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros interfaces_hot_wheels
 )
 add_executable(waypoint_node src/waypoint_pub.cpp)
 ament_target_dependencies(waypoint_node 
-  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros
+  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros interfaces_hot_wheels
 )
 add_executable(pose_fake_pub_node src/pose_fake_pub.cpp)
 ament_target_dependencies(waypoint_node 
-  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros
+  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros interfaces_hot_wheels
 )
 
 # Install Cpp executables

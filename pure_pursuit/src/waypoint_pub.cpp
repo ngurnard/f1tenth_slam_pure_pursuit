@@ -75,9 +75,9 @@ public:
 
     void csv_to_waypoints()
     {
-        string fname = "waypoints/levine.csv";
+        std::string fname = "waypoints/levine.csv";
         
-        string line;
+        std::string line;
         fstream file (fname, ios::in);
 
         visualization_msgs::msg::MarkerArray marker_array;  
@@ -89,18 +89,18 @@ public:
             while(getline(file, line))
             {
                 std::vector<std::string> vec;
-                boost::algorithm::split(vec, line, boost::is_any_of(","));
+                boost::algorithm::split(vec, line, boost::is_any_of(",")); // split str with delimiter
                 interfaces_hot_wheels::msg::Waypoint p;
 
-                p.x = std::stod(vec[0]);
+                p.x = std::stod(vec[0]); // str to double
                 p.y = std::stod(vec[1]);
                 p.v = std::stod(vec[2]);
 
                 waypoints.push_back(p);        
 
                 marker.type = visualization_msgs::msg::Marker::SPHERE;
-                marker.pose.position.x = x;
-                marker.pose.position.y = y;
+                marker.pose.position.x = p.x;
+                marker.pose.position.y = p.y;
                 marker.id = marker_id++;
                 marker.scale.x = 0.1;
                 marker.scale.y = 0.1;
@@ -119,7 +119,7 @@ public:
     {
         float x = pose_msg->pose.position.x;
         float y = pose_msg->pose.position.y;
-        geometry_msg::msg::Quaternion quat = pose_msg->pose.orientation;
+        geometry_msgs::msg::Quaternion quat = pose_msg->pose.orientation;
 
         // TODO: Find optimum waypoint
 
@@ -151,7 +151,7 @@ public:
         
         for (auto wpt : waypoints) {
             
-            geometry_msgs::Pose wpt_transformed;
+            geometry_msgs::msg::Pose wpt_transformed;
             wpt_transformed.position.x = wpt.x;
             wpt_transformed.position.y = wpt.y;
             wpt_transformed.position.z = 0;
@@ -166,10 +166,11 @@ public:
             }
 
             double dist = sqrt(pow(wpt_transformed.x, 2) + pow(wpt_transformed.y, 2));
-            if(dist < min_distance && dist > this->get_parameter("L").get_parameter_value().get<float>()){
+            if(dist < min_dist && dist > this->get_parameter("L").get_parameter_value().get<float>()){
                 min_dist = dist;
                 next_point.x = wpt_transformed.x;
                 next_point.y = wpt_transformed.y;
+            }
         }
 
         next_point.v = 2.0;
@@ -180,4 +181,10 @@ public:
     
     ~Waypoint() {}
 };
-
+int main(int argc, char **argv)
+{
+    rclcpp::init(argc, argv);
+    rclcpp::spin(std::make_shared<Waypoint>());
+    rclcpp::shutdown();
+    return 0;
+}

@@ -61,7 +61,7 @@ public:
         x = waypoint->x;
         y = waypoint->y;
         v = waypoint->z;
-        L = waypoint->L;
+        L = waypoint->l;
 
         // TODO: calculate curvature/steering angle
         theta = 2 * abs(y)/pow(L, 2);

@@ -173,7 +173,7 @@ public:
         }
 
         next_point.v = 2.0;
-        next_point.L = this->get_parameter("L").get_parameter_value().get<float>();
+        next_point.l = this->get_parameter("L").get_parameter_value().get<float>();
         wpt_pub_->publish(next_point);
         
     }

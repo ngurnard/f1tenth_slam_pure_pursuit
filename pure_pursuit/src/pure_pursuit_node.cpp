@@ -30,7 +30,7 @@ private:
         L = waypoint->l;
 
         // TODO: calculate curvature/steering angle
-        theta = 2 * abs(y)/pow(L, 2);
+        theta = 2 * (y)/pow(L, 2);
         
         // TODO: publish drive message, don't forget to limit the steering angle.
         // kp is proportional to arlength since s=r*theta --> theta is proportional to Kp/r
@@ -85,7 +85,7 @@ public:
             drive_topic_, 1);
         
  
-        this->declare_parameter("Kp", 0.05);
+        this->declare_parameter("Kp", 0.1);
     }
     
 

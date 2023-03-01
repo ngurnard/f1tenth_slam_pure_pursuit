@@ -196,7 +196,7 @@ public:
 
         auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
         param_desc.description = "Lookahead distance for Pure Pursuit";
-        this->declare_parameter("L", 1.0, param_desc);
+        this->declare_parameter("L", 2.0, param_desc);
         this->declare_parameter("v", 1.0);
         param_desc.description = "Boolean flag to use velocities from .csv";
         this->declare_parameter("v_csv", false, param_desc);

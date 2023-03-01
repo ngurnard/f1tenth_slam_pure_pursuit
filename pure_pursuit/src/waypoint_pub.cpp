@@ -2,6 +2,8 @@
 #include <string>
 #include <cmath>
 #include <vector>
+#include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -26,13 +28,16 @@ class Waypoint : public rclcpp::Node
 
 private:
     std::string wpt_topic_ = "/waypoint";
-    std::string vis_topic_ = "/vis";
+    std::string vis_waypoint_topic_ = "/waypoint_vis";
+    std::string vis_cur_point_topic_ = "/cur_point_vis";
     std::string pose_topic_ = "/pose";
 
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr pose_sub_;
 
-    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr vis_pub_;
+    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr vis_waypoint_pub_;
     rclcpp::Publisher<interfaces_hot_wheels::msg::Waypoint>::SharedPtr wpt_pub_;
+    rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr vis_cur_point_pub_;
+
 
     std::vector<interfaces_hot_wheels::msg::Waypoint> waypoints;
 
@@ -40,6 +45,8 @@ private:
     std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
     std::string source_frame_;
     std::string target_frame_;
+
+    visualization_msgs::msg::MarkerArray marker_array; 
     
     void pose_callback(const geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg)
     {
@@ -49,6 +56,8 @@ private:
         geometry_msgs::msg::TransformStamped map_to_baselink;
         std::string SrcFrameRel = source_frame_.c_str();
         std::string TarFrameRel = target_frame_.c_str();
+
+        cout << "Pose Callback" << endl;
 
         try {
             map_to_baselink = tf_buffer_->lookupTransform(
@@ -88,57 +97,55 @@ private:
                 min_dist = dist;
                 next_point.x = wpt_transformed.pose.position.x;
                 next_point.y = wpt_transformed.pose.position.y;
+                if(!this->get_parameter("v_csv").get_parameter_value().get<bool>())
+                    next_point.v = this->get_parameter("v").get_parameter_value().get<float>();
+                else
+                    next_point.v = wpt.v;;
             }
         }
 
-        next_point.v = 2.0;
-        next_point.l = this->get_parameter("L").get_parameter_value().get<float>();
-        wpt_pub_->publish(next_point);
-    }
-
-public:
-    // default contructor
-    Waypoint() : Node("waypoint_node") {
-
-        auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
-        param_desc.description = "Lookahead distance for Pure Pursuit";
-        this->declare_parameter("L", 1.0, param_desc);  
-        source_frame_ = this->declare_parameter<std::string>("source_frame", "/map");
-        target_frame_ = this->declare_parameter<std::string>("target_frame", "/base_link");
+        RCLCPP_INFO(this->get_logger(), "Next point: %f, %f", next_point.x, next_point.y);;
         
-        // populate the waypoints vector
-        csv_to_waypoints();
+        next_point.l = this->get_parameter("L").get_parameter_value().get<float>();
 
-        wpt_pub_ = this->create_publisher<interfaces_hot_wheels::msg::Waypoint>(
-            wpt_topic_, 1);
+        visualization_msgs::msg::Marker marker;
 
-        vis_pub_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
-            vis_topic_, 1);
+        marker.type = visualization_msgs::msg::Marker::SPHERE;
+        marker.pose.position.x = next_point.x;
+        marker.pose.position.y = next_point.y;
+        marker.id = 0;
+        marker.scale.x = 0.5;
+        marker.scale.y = 0.5;
+        marker.scale.z = 0.5;
+        marker.color.a = 1.0;
+        marker.color.r = 0.0;
+        marker.color.g = 1.0;
+        marker.color.b = 0.0;
+        marker.header.frame_id = "ego_racecar/base_link";
 
-        pose_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
-            pose_topic_, 1, std::bind(&Waypoint::pose_callback, this, std::placeholders::_1));
-
-
-        // // populate the waypoints vector
-        // csv_to_waypoints();
-
-        tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
-        tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
+        vis_cur_point_pub_->publish(marker);
+        wpt_pub_->publish(next_point);
+        vis_waypoint_pub_->publish(marker_array);
     }
 
     void csv_to_waypoints()
     {
-        std::string fname = "waypoints/levine.csv";
+        string relative_path = "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints/";
+        string fname = "waypoints1.csv";
         
         std::string line, s;
-        std::fstream file (fname, ios::in);
-
-        visualization_msgs::msg::MarkerArray marker_array;  
+        std::ifstream file(relative_path + fname);
+        // file.open("waypoints1.csv");
+ 
         visualization_msgs::msg::Marker marker;
 
-        std::vector<double> v;
+        std::vector<double> line_vector;
         
-        if(file.is_open())
+        if(!file.is_open())
+        {
+            throw "waypoints/waypoints*.csv file failed to open, check relative path";
+        }
+        else
         {
             int marker_id = 1;
             while(getline(file, line))
@@ -150,12 +157,14 @@ public:
                 while(getline(ss, s, ',')) 
                 {
                     // store token string in the vector
-                    v.push_back(stod(s));
+                    line_vector.push_back(stod(s));
                 }
 
-                p.x = v[0]; // str to double
-                p.y = v[1];
-                p.v = v[3];
+                p.x = line_vector[0]; // str to double
+                p.y = line_vector[1];
+                if(this->get_parameter("v_csv").get_parameter_value().get<bool>())
+                    p.v = line_vector[3];
+                
 
                 waypoints.push_back(p);        
 
@@ -163,22 +172,57 @@ public:
                 marker.pose.position.x = p.x;
                 marker.pose.position.y = p.y;
                 marker.id = marker_id++;
-                marker.scale.x = 0.1;
-                marker.scale.y = 0.1;
-                marker.scale.z = 0.1;
-                marker.color.a = 1.0;
+                marker.scale.x = 0.5;
+                marker.scale.y = 0.5;
+                marker.scale.z = 0.5;
+                marker.color.a = 0.5;
                 marker.color.r = 0.0;
                 marker.color.g = 0.0;
                 marker.color.b = 1.0;
+                marker.header.frame_id = "map";
+
                 marker_array.markers.push_back(marker);
 
-                v.clear();
+
+                line_vector.clear();
             }
+            file.close();
         }
-        vis_pub_->publish(marker_array);
     }
 
-    
+public:
+    // default contructor
+    Waypoint() : Node("waypoint_node") {
+
+        auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+        param_desc.description = "Lookahead distance for Pure Pursuit";
+        this->declare_parameter("L", 1.0, param_desc);
+        this->declare_parameter("v", 1.0);
+        param_desc.description = "Boolean flag to use velocities from .csv";
+        this->declare_parameter("v_csv", false, param_desc);
+
+        source_frame_ = this->declare_parameter<std::string>("source_frame", "map");
+        target_frame_ = this->declare_parameter<std::string>("target_frame", "ego_racecar/base_link");
+
+        wpt_pub_ = this->create_publisher<interfaces_hot_wheels::msg::Waypoint>(
+            wpt_topic_, 1);
+
+        vis_waypoint_pub_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
+            vis_waypoint_topic_, 1);
+        
+        vis_cur_point_pub_ = this->create_publisher<visualization_msgs::msg::Marker>(
+            vis_cur_point_topic_, 1);
+
+        pose_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
+            pose_topic_, 1, std::bind(&Waypoint::pose_callback, this, std::placeholders::_1));
+
+        tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
+        tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
+
+        // populate the waypoints vector
+        csv_to_waypoints();
+    }
+
     ~Waypoint() {}
 };
 int main(int argc, char **argv)

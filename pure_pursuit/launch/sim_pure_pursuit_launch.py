@@ -15,7 +15,7 @@ def generate_launch_description():
         ),
         Node(
             package='pure_pursuit',
-            executable='pose_pub_node',
+            executable='pose_fake_pub_node',
             name='pose_fake_pub_node',
         )
     ])

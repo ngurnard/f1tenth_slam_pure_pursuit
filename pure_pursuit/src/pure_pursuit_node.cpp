@@ -39,23 +39,23 @@ private:
         drive_msg.drive.speed = v;
         drive_pub_->publish(drive_msg);
         
-        // visualization
-        visualization_msgs::msg::MarkerArray marker_array;
-        visualization_msgs::msg::Marker marker;
+        RCLCPP_INFO(this->get_logger(), "Steering Angle: %f", drive_msg.drive.steering_angle);
+        RCLCPP_INFO(this->get_logger(), "Next point in car frame: %f, %f", x, y);
+        // // visualization
+        // visualization_msgs::msg::Marker marker;
 
-        marker.type = visualization_msgs::msg::Marker::SPHERE;
-        marker.pose.position.x = x;
-        marker.pose.position.y = y;
-        marker.id = 0;
-        marker.scale.x = 0.1;
-        marker.scale.y = 0.1;
-        marker.scale.z = 0.1;
-        marker.color.a = 1.0;
-        marker.color.r = 0.0;
-        marker.color.g = 1.0;
-        marker.color.b = 0.0;
-        marker_array.markers.push_back(marker);
-        vis_pub_->publish(marker_array);
+        // marker.type = visualization_msgs::msg::Marker::SPHERE;
+        // marker.pose.position.x = x;
+        // marker.pose.position.y = y;
+        // marker.id = 0;
+        // marker.scale.x = 0.1;
+        // marker.scale.y = 0.1;
+        // marker.scale.z = 0.1;
+        // marker.color.a = 1.0;
+        // marker.color.r = 0.0;
+        // marker.color.g = 1.0;
+        // marker.color.b = 0.0;
+        // vis_pub_->publish(marker);
     }
 
     double x, y, v, L; // position [x,y] and velocity at point, v
@@ -63,13 +63,10 @@ private:
 
     std::string cur_wpt_topic_ = "/waypoint";
     std::string drive_topic_ = "/drive";
-    std::string vis_topic_ = "/vis";
 
     rclcpp::Subscription<interfaces_hot_wheels::msg::Waypoint>::SharedPtr waypoint_sub_;
     
     rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr drive_pub_;
-    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr vis_pub_;
-
 
 
 public:
@@ -86,10 +83,9 @@ public:
             cur_wpt_topic_, 1, std::bind(&PurePursuit::waypoint_callback, this, std::placeholders::_1));
         drive_pub_ = this->create_publisher<ackermann_msgs::msg::AckermannDriveStamped>(
             drive_topic_, 1);
-        vis_pub_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
-            vis_topic_, 1);
+        
  
-        this->declare_parameter("Kp", 0.36);
+        this->declare_parameter("Kp", 0.05);
     }
     
 

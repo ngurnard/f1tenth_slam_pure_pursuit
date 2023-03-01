@@ -25,7 +25,8 @@ foreach(PACKAGE
   Eigen3
   tf2_ros
   tf2_geometry_msgs
-  interfaces_hot_wheels)
+  interfaces_hot_wheels
+  )
 
   find_package(${PACKAGE} REQUIRED)
 

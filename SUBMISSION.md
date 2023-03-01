@@ -1,4 +1,6 @@
 # Lab 6: SLAM and Pure Pursuit
 
 ## YouTube video link
-[FILL ME IN](https://tinyurl.com/22mts2ax)
+[Real car running Pure pursuit](https://tinyurl.com/22mts2ax)
+[Simulation view of real car](https://tinyurl.com/22mts2ax)
+[Pure pursuit simulation](https://youtu.be/vXvBLYYop7Q)

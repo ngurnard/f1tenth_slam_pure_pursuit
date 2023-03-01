@@ -202,7 +202,7 @@ public:
         this->declare_parameter("v_csv", false, param_desc);
 
         source_frame_ = this->declare_parameter<std::string>("source_frame", "map");
-        target_frame_ = this->declare_parameter<std::string>("target_frame", "ego_racecar/base_link");
+        target_frame_ = this->declare_parameter<std::string>("target_frame", "laser");
 
         wpt_pub_ = this->create_publisher<interfaces_hot_wheels::msg::Waypoint>(
             wpt_topic_, 1);

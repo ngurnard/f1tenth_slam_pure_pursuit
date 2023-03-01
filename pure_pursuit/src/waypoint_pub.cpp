@@ -114,14 +114,14 @@ private:
         marker.pose.position.x = next_point.x;
         marker.pose.position.y = next_point.y;
         marker.id = 0;
-        marker.scale.x = 0.5;
-        marker.scale.y = 0.5;
-        marker.scale.z = 0.5;
+        marker.scale.x = 0.25;
+        marker.scale.y = 0.25;
+        marker.scale.z = 0.25;
         marker.color.a = 1.0;
         marker.color.r = 0.0;
         marker.color.g = 1.0;
         marker.color.b = 0.0;
-        marker.header.frame_id = "ego_racecar/base_link";
+        marker.header.frame_id = "laser";
 
         vis_cur_point_pub_->publish(marker);
         wpt_pub_->publish(next_point);
@@ -172,9 +172,9 @@ private:
                 marker.pose.position.x = p.x;
                 marker.pose.position.y = p.y;
                 marker.id = marker_id++;
-                marker.scale.x = 0.5;
-                marker.scale.y = 0.5;
-                marker.scale.z = 0.5;
+                marker.scale.x = 0.15;
+                marker.scale.y = 0.15;
+                marker.scale.z = 0.15;
                 marker.color.a = 0.5;
                 marker.color.r = 0.0;
                 marker.color.g = 0.0;
@@ -196,8 +196,8 @@ public:
 
         auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
         param_desc.description = "Lookahead distance for Pure Pursuit";
-        this->declare_parameter("L", 2.0, param_desc);
-        this->declare_parameter("v", 1.0);
+        this->declare_parameter("L", 1.0, param_desc);
+        this->declare_parameter("v", 2.0);
         param_desc.description = "Boolean flag to use velocities from .csv";
         this->declare_parameter("v_csv", false, param_desc);
 

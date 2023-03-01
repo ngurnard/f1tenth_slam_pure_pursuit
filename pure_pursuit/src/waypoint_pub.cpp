@@ -130,12 +130,12 @@ private:
 
     void csv_to_waypoints()
     {
-        string relative_path = "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints/";
-        string fname = "waypoints1.csv";
+        string relative_path = "/home/nvidia/f1tenth_ws/src/pure_pursuit/pure_pursuit/waypoints/";
+        string fname = "waypoints_drive.csv";
         
         std::string line, s;
         std::ifstream file(relative_path + fname);
-        // file.open("waypoints1.csv");
+        // file.open("waypoints_drive.csv");
  
         visualization_msgs::msg::Marker marker;
 

@@ -19,7 +19,7 @@ class PosePubSub : public rclcpp::Node
 {
 
 private:
-    std::string pose_topic_ = "/pose";
+    std::string pose_topic_ = "/pf/viz/inferred_pose";
     std::string odom_topic_ = "/ego_racecar/odom";
 
     rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_pub_;

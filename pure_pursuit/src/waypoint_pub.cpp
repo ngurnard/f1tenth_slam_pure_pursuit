@@ -97,6 +97,7 @@ private:
                 min_dist = dist;
                 next_point.x = wpt_transformed.pose.position.x;
                 next_point.y = wpt_transformed.pose.position.y;
+                next_point.l = sqrt(pow(next_point.x, 2) + pow(next_point.y, 2));
                 if(!this->get_parameter("v_csv").get_parameter_value().get<bool>())
                     next_point.v = this->get_parameter("v").get_parameter_value().get<float>();
                 else
@@ -105,8 +106,6 @@ private:
         }
 
         RCLCPP_INFO(this->get_logger(), "Next point: %f, %f", next_point.x, next_point.y);;
-        
-        next_point.l = this->get_parameter("L").get_parameter_value().get<float>();
 
         visualization_msgs::msg::Marker marker;
 

@@ -59,7 +59,7 @@ private:
         std::string SrcFrameRel = source_frame_.c_str();
         std::string TarFrameRel = target_frame_.c_str();
 
-        cout << "Pose Callback" << endl;
+        // cout << "Pose Callback" << endl;
 
         try {
             map_to_baselink = tf_buffer_->lookupTransform(
@@ -107,7 +107,7 @@ private:
             }
         }
 
-        RCLCPP_INFO(this->get_logger(), "Next point: %f, %f", next_point.x, next_point.y);;
+        // RCLCPP_INFO(this->get_logger(), "Next point: %f, %f", next_point.x, next_point.y);;
 
         visualization_msgs::msg::Marker marker;
 
@@ -132,7 +132,7 @@ private:
     void csv_to_waypoints()
     {
         string relative_path = "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints/";
-        string fname = "waypoints_drive.csv";
+        string fname = "waypoints1.csv";
         
         std::string line, s;
         std::ifstream file(relative_path + fname);

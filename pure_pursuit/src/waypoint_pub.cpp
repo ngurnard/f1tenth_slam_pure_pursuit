@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+// #include <boost/filesystem/path.hpp>
 
 using namespace std;
 
@@ -20,6 +21,7 @@ using namespace std;
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+// #include "ament_index_cpp/visibility_control.h"
 
 #include "interfaces_hot_wheels/msg/waypoint.hpp"
 
@@ -120,7 +122,7 @@ private:
         marker.color.r = 0.0;
         marker.color.g = 1.0;
         marker.color.b = 0.0;
-        marker.header.frame_id = "laser";
+        marker.header.frame_id = "ego_racecar/laser_model";
 
         vis_cur_point_pub_->publish(marker);
         wpt_pub_->publish(next_point);
@@ -129,7 +131,7 @@ private:
 
     void csv_to_waypoints()
     {
-        string relative_path = "/home/nvidia/f1tenth_ws/src/pure_pursuit/pure_pursuit/waypoints/";
+        string relative_path = "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints/";
         string fname = "waypoints_drive.csv";
         
         std::string line, s;
@@ -192,7 +194,7 @@ private:
 public:
     // default contructor
     Waypoint() : Node("waypoint_node") {
-
+        // cout << "Current path" << ament_index_cpp::ameget_package_share_directory("pure_pursuit") << endl;
         auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
         param_desc.description = "Lookahead distance for Pure Pursuit";
         this->declare_parameter("L", 1.0, param_desc);
@@ -201,7 +203,7 @@ public:
         this->declare_parameter("v_csv", false, param_desc);
 
         source_frame_ = this->declare_parameter<std::string>("source_frame", "map");
-        target_frame_ = this->declare_parameter<std::string>("target_frame", "laser");
+        target_frame_ = this->declare_parameter<std::string>("target_frame", "ego_racecar/laser_model");
 
         wpt_pub_ = this->create_publisher<interfaces_hot_wheels::msg::Waypoint>(
             wpt_topic_, 1);

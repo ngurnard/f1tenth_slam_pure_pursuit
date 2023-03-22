@@ -30,6 +30,7 @@ private:
         /// TODO: publish pose
         geometry_msgs::msg::PoseStamped p;
         p.pose = odom_msg->pose.pose;
+        p.header = odom_msg->header;
 
         pose_pub_->publish(p);
     }

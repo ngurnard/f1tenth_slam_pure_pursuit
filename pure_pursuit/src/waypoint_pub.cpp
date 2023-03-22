@@ -131,8 +131,9 @@ private:
 
     void csv_to_waypoints()
     {
-        string relative_path = "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints/";
-        string fname = "waypoints1.csv";
+        cout << this->get_parameter("waypoints_path").as_string() << endl;
+        string relative_path = this->get_parameter("waypoints_path").as_string(); //"/sim_ws/src/pure_pursuit/pure_pursuit/waypoints/";
+        string fname = this->get_parameter("waypoints_file").as_string(); // "waypoints1.csv";
         
         std::string line, s;
         std::ifstream file(relative_path + fname);
@@ -204,6 +205,11 @@ public:
 
         source_frame_ = this->declare_parameter<std::string>("source_frame", "map");
         target_frame_ = this->declare_parameter<std::string>("target_frame", "ego_racecar/laser_model");
+
+        this->declare_parameter("waypoints_path");
+        // this->declare_parameter("waypoints path", "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints");
+        this->declare_parameter("waypoints_file", "waypoints1.csv");    
+
 
         wpt_pub_ = this->create_publisher<interfaces_hot_wheels::msg::Waypoint>(
             wpt_topic_, 1);

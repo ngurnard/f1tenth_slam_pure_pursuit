@@ -13,8 +13,10 @@ from tf_transformations import euler_from_quaternion  # sudo apt install ros-fox
 import time
 
 
-relative_path = "/home/nvidia/f1tenth_ws/src/pure_pursuit/pure_pursuit/waypoints/"
-fname = "waypoints_drive"
+# relative_path = "/home/nvidia/f1tenth_ws/src/pure_pursuit/pure_pursuit/waypoints/"
+relative_path = "/sim_ws/src/mpc/mpc/waypoints/"
+fname = "waypoints_mpc"
+print(relative_path+fname+'.csv')
 # file = open(strftime(relative_path+'waypoint-%Y-%m-%d-%H-%M-%S', gmtime())+'.csv', 'w')
 file = open(relative_path+fname+'.csv', 'w')
 
@@ -36,6 +38,7 @@ class WaypointLogger(Node):
     def save_waypoint(self,  data):
         global previous_time
         if(data.header.stamp.sec - previous_time >= 2):
+            print("next point", data.header.stamp.sec)
             quaternion = np.array([data.pose.orientation.x, 
                                 data.pose.orientation.y, 
                                 data.pose.orientation.z, 
@@ -43,11 +46,8 @@ class WaypointLogger(Node):
 
             euler = euler_from_quaternion(quaternion)
             speed = 3.0
-            # speed = LA.norm(np.array([data.twist.twist.linear.x, 
-            #                         data.twist.twist.linear.y, 
-            #                         data.twist.twist.linear.z]),2)
 
-            file.write('%f, %f, %f, %f\n' % (data.pose.position.x,
+            file.write('%f,%f,%f,%f\n' % (data.pose.position.x,
                                             data.pose.position.y,
                                             euler[2],
                                             speed))

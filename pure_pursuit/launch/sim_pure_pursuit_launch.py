@@ -1,5 +1,10 @@
+import os
+
+from ament_index_python.packages import get_package_share_directory
+
 from launch import LaunchDescription
 from launch_ros.actions import Node
+
 
 def generate_launch_description():
     return LaunchDescription([
@@ -19,8 +24,10 @@ def generate_launch_description():
             name='waypoint_node',
             parameters=[
                 {
-                'source_frame' : "map",
-                'target_frame' : "ego_racecar/laser_model"
+                'source_frame'   : "map",
+                'target_frame'   : "ego_racecar/laser_model",
+                'waypoints_path' : "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints/",
+                'waypoints_file' : "waypoints1.csv"
                 }
             ]
         ),

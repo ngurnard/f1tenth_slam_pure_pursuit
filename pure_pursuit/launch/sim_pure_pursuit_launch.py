@@ -6,12 +6,23 @@ def generate_launch_description():
         Node(
             package='pure_pursuit',
             executable='pure_pursuit_node',
-            name='pure_pursuit_node'
+            name='pure_pursuit_node',
+            parameters=[
+            {
+            'Kp' : 0.3
+            }
+            ]
         ),
         Node(
             package='pure_pursuit',
             executable='waypoint_node',
-            name='waypoint_node'
+            name='waypoint_node',
+            parameters=[
+                {
+                'source_frame' : "map",
+                'target_frame' : "ego_racecar/laser_model"
+                }
+            ]
         ),
         Node(
             package='pure_pursuit',

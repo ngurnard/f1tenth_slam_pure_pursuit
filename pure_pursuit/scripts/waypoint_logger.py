@@ -14,8 +14,8 @@ import time
 
 
 # relative_path = "/home/nvidia/f1tenth_ws/src/pure_pursuit/pure_pursuit/waypoints/"
-relative_path = "/sim_ws/src/mpc/mpc/waypoints/"
-fname = "waypoints_mpc"
+relative_path = "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints/"
+fname = "waypoints_sim"
 print(relative_path+fname+'.csv')
 # file = open(strftime(relative_path+'waypoint-%Y-%m-%d-%H-%M-%S', gmtime())+'.csv', 'w')
 file = open(relative_path+fname+'.csv', 'w')
@@ -37,7 +37,8 @@ class WaypointLogger(Node):
 
     def save_waypoint(self,  data):
         global previous_time
-        if(data.header.stamp.sec - previous_time >= 2):
+        collection_time = 0.5
+        if(data.header.stamp.sec - previous_time >= collection_time):
             print("next point", data.header.stamp.sec)
             quaternion = np.array([data.pose.orientation.x, 
                                 data.pose.orientation.y, 
@@ -51,7 +52,6 @@ class WaypointLogger(Node):
                                             data.pose.position.y,
                                             euler[2],
                                             speed))
-            print("Every 2sec", previous_time)
 
             previous_time = data.header.stamp.sec
  

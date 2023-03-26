@@ -20,7 +20,6 @@ def generate_launch_description():
             parameters=[
             {
             'Kp' : 0.3,
-            'v' : 1.0
             }
             ]
         ),
@@ -35,6 +34,7 @@ def generate_launch_description():
                 'waypoints_path' : share_directory,
                 'waypoints_file' : "waypoints_gen.csv",
                 'v_csv'          :  1,
+                'v'              :  2.0
                 }
             ],
             output='screen',

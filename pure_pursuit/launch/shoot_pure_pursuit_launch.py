@@ -1,17 +1,18 @@
 import os
-import rospkg
 
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
 from launch_ros.actions import Node
-
+from launch.actions import IncludeLaunchDescription
+from launch_ros.substitutions import FindPackageShare
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.actions import DeclareLaunchArgument
 
 def generate_launch_description():
     share_directory = os.path.join(
         get_package_share_directory('pure_pursuit'),
         'waypoints', "")
-
     return LaunchDescription([
         Node(
             package='pure_pursuit',
@@ -20,28 +21,31 @@ def generate_launch_description():
             parameters=[
             {
             'Kp' : 0.3,
-            'v' : 1.0
+            'v' : 2.0
             }
             ]
         ),
         Node(
             package='pure_pursuit',
-            executable='waypoint_node',
-            name='waypoint_node',
+            executable='waypoint_race_node',
+            name='waypoint_race_node',
             parameters=[
                 {
                 'global_frame'   : "map",
-                'local_frame'   : "ego_racecar/laser_model",
+                'local_frame'    : "laser",
                 'waypoints_path' : share_directory,
-                'waypoints_file' : "waypoints_gen.csv",
-                'v_csv'          :  1,
+                'waypoints_file' : "waypoints_optimized.csv",
+                'v_csv'          :  0,
                 }
-            ],
-            output='screen',
+            ]
         ),
-        Node(
-            package='pure_pursuit',
-            executable='pose_fake_pub_node',
-            name='pose_fake_pub_node',
-        )
+        IncludeLaunchDescription
+        (
+                PythonLaunchDescriptionSource
+                ([
+                    FindPackageShare("particle_filter"),
+                    '/launch',
+                    'localize_launch.py'
+                ])
+        ) 
     ])

@@ -10,14 +10,20 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.actions import DeclareLaunchArgument
 
 def generate_launch_description():
-    print("\n\nPATH:\n", os.path.join(
-                    get_package_share_directory('pure_pursuit'),
-                    'waypoints'))
+    share_directory = os.path.join(
+        get_package_share_directory('pure_pursuit'),
+        'waypoints', "")
     return LaunchDescription([
         Node(
             package='pure_pursuit',
             executable='pure_pursuit_node',
-            name='pure_pursuit_node',  
+            name='pure_pursuit_node',
+            parameters=[
+            {
+            'Kp' : 0.3,
+            'v' : 2.0
+            }
+            ]
         ),
         Node(
             package='pure_pursuit',
@@ -25,11 +31,11 @@ def generate_launch_description():
             name='waypoint_node',
             parameters=[
                 {
-                'source_frame'   : "map",
-                'target_frame'   : "laser",
-                'waypoints_path' : "/f1tenth_ws/src/pure_pursuit/pure_pursuit/waypoints/",
-                'waypoints_file' : "waypoints_drive.csv"
-                # 'waypoints_file' : DeclareLaunchArgument('number_of_uavs', default_value="waypoints_drive.csv")
+                'global_frame'   : "map",
+                'local_frame'    : "laser",
+                'waypoints_path' : share_directory,
+                'waypoints_file' : "waypoints_optimized.csv",
+                'v_csv'          :  0,
                 }
             ]
         ),

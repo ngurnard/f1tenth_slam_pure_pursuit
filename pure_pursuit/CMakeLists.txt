@@ -51,12 +51,17 @@ add_executable(pose_fake_pub_node src/pose_fake_pub.cpp)
 ament_target_dependencies(pose_fake_pub_node 
   rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros interfaces_hot_wheels
 )
+add_executable(waypoint_race_node src/waypoint_pub_race.cpp)
+ament_target_dependencies(waypoint_race_node 
+  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros interfaces_hot_wheels tf2_geometry_msgs
+)
 
 # Install Cpp executables
 install(TARGETS
   pure_pursuit_node
   waypoint_node
   pose_fake_pub_node
+  waypoint_race_node
   DESTINATION lib/${PROJECT_NAME})
 
 # Install Python modules
@@ -72,6 +77,13 @@ install(PROGRAMS
 # Install launch files.
 install(DIRECTORY
   launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+
+# Add folders to share directory
+install(DIRECTORY
+  config
+  waypoints
   DESTINATION share/${PROJECT_NAME}/
 )
 

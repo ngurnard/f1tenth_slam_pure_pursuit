@@ -39,8 +39,8 @@ private:
         drive_msg.drive.speed = v;
         drive_pub_->publish(drive_msg);
         
-        RCLCPP_INFO(this->get_logger(), "Steering Angle: %f", drive_msg.drive.steering_angle);
-        RCLCPP_INFO(this->get_logger(), "Next point in car frame: %f, %f", x, y);
+        // RCLCPP_INFO(this->get_logger(), "Steering Angle: %f", drive_msg.drive.steering_angle);
+        // RCLCPP_INFO(this->get_logger(), "Next point in car frame: %f, %f", x, y);
         // // visualization
         // visualization_msgs::msg::Marker marker;
 

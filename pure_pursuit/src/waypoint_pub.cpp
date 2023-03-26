@@ -100,7 +100,7 @@ private:
                 next_point.x = wpt_transformed.pose.position.x;
                 next_point.y = wpt_transformed.pose.position.y;
                 next_point.l = sqrt(pow(next_point.x, 2) + pow(next_point.y, 2));
-                if(!this->get_parameter("v_csv").get_parameter_value().get<bool>())
+                if(!this->get_parameter("v_csv").get_parameter_value().get<int>())
                     next_point.v = this->get_parameter("v").get_parameter_value().get<float>();
                 else
                     next_point.v = wpt.v;;
@@ -164,8 +164,11 @@ private:
 
                 p.x = line_vector[0]; // str to double
                 p.y = line_vector[1];
-                if(this->get_parameter("v_csv").get_parameter_value().get<bool>())
+                if(this->get_parameter("v_csv").get_parameter_value().get<int>())
+                {
+                    cout << "v from csv" <<  line_vector[3] <<endl;
                     p.v = line_vector[3];
+                }
                 
 
                 waypoints.push_back(p);        
@@ -200,8 +203,8 @@ public:
         param_desc.description = "Lookahead distance for Pure Pursuit";
         this->declare_parameter("L", 1.0, param_desc);
         this->declare_parameter("v", 2.0);
-        param_desc.description = "Boolean flag to use velocities from .csv";
-        this->declare_parameter("v_csv", false, param_desc);
+        param_desc.description = "Integer flag to use velocities from .csv";
+        this->declare_parameter("v_csv", 0, param_desc);
 
         source_frame_ = this->declare_parameter<std::string>("source_frame", "map");
         target_frame_ = this->declare_parameter<std::string>("target_frame", "ego_racecar/laser_model");

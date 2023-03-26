@@ -7,6 +7,20 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
+    share_directory = get_package_share_directory('pure_pursuit')
+    waypoint_dir = str(share_directory+"/../../../../src/lab-7-model-predictive-control-hot-wheels/pure_pursuit/waypoints/")
+    # print("\n\nPATH:\n", waypoint_dir)
+    config = os.path.join(
+        share_directory,
+        "../../../../",
+        "src",
+        "lab-7-model-predictive-control-hot-wheels",
+        "pure_pursuit",
+        "waypoints",
+        "",
+      )
+    # print(config)
+
     return LaunchDescription([
         Node(
             package='pure_pursuit',
@@ -27,8 +41,9 @@ def generate_launch_description():
                 {
                 'source_frame'   : "map",
                 'target_frame'   : "ego_racecar/laser_model",
-                'waypoints_path' : "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints/",
-                'waypoints_file' : "waypoints_gen.csv"
+                'waypoints_path' : "/sim_ws/src/lab-7-model-predictive-control-hot-wheels/pure_pursuit/waypoints/",
+                'waypoints_file' : "waypoints_mpc.csv",
+                'v_csv'          :  1,
                 }
             ]
         ),

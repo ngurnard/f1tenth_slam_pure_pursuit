@@ -13,9 +13,9 @@ from tf_transformations import euler_from_quaternion  # sudo apt install ros-fox
 import time
 
 
-# relative_path = "/home/nvidia/f1tenth_ws/src/pure_pursuit/pure_pursuit/waypoints/"
-relative_path = "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints/"
-fname = "waypoints_sim"
+relative_path = "/home/nvidia/f1tenth_ws/src/pure_pursuit/pure_pursuit/waypoints/"
+# relative_path = "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints/"
+fname = "waypoints_center"
 print(relative_path+fname+'.csv')
 # file = open(strftime(relative_path+'waypoint-%Y-%m-%d-%H-%M-%S', gmtime())+'.csv', 'w')
 file = open(relative_path+fname+'.csv', 'w')

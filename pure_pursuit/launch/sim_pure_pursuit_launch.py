@@ -32,7 +32,7 @@ def generate_launch_description():
                 'global_frame'   : "map",
                 'local_frame'   : "ego_racecar/laser_model",
                 'waypoints_path' : share_directory,
-                'waypoints_file' : "waypoints_gen.csv",
+                'waypoints_file' : "waypoints_optimized_2.csv",
                 'v_csv'          :  1,
                 'v'              :  2.0
                 }

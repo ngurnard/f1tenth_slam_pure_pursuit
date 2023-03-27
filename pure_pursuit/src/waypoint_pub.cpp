@@ -206,8 +206,10 @@ public:
         param_desc.description = "Integer flag to use velocities from .csv";
         this->declare_parameter("v_csv", 0, param_desc);
 
-        source_frame_ = this->declare_parameter<std::string>("source_frame", "map");
-        target_frame_ = this->declare_parameter<std::string>("target_frame", "ego_racecar/laser_model");
+        this->declare_parameter("global_frame");
+        this->declare_parameter("local_frame");
+        source_frame_ = this->get_parameter("global_frame").as_string();
+        target_frame_ = this->get_parameter("local_frame").as_string();
 
         this->declare_parameter("waypoints_path");
         // this->declare_parameter("waypoints path", "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints");

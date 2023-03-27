@@ -20,7 +20,7 @@ def generate_launch_description():
             name='pure_pursuit_node',
             parameters=[
             {
-            'Kp' : 0.3,
+            'Kp' : 0.4,
             }
             ]
         ),
@@ -35,7 +35,7 @@ def generate_launch_description():
                 'waypoints_path' : share_directory,
                 'waypoints_file' : "waypoints_optimized_1.csv",
                 'v_csv'          :  0,
-                'v'              :  0.0
+                'v'              :  3.0
                 }
             ]
         ),
@@ -45,7 +45,7 @@ def generate_launch_description():
                 ([
                     FindPackageShare("particle_filter"),
                     '/launch',
-                    'localize_launch.py'
+                    '/localize_launch.py'
                 ])
         ) 
     ])

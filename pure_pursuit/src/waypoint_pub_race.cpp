@@ -284,7 +284,7 @@ public:
         this->declare_parameter("v_csv", 0, param_desc);
 
         global_frame_ = this->declare_parameter<std::string>("gloabal_frame", "map");
-        local_frame_ = this->declare_parameter<std::string>("local_frame", "ego_racecar/laser_model");
+        local_frame_ = this->declare_parameter<std::string>("local_frame", "laser");
 
         this->declare_parameter("waypoints_path");
         // this->declare_parameter("waypoints path", "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints");

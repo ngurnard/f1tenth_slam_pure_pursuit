@@ -122,7 +122,7 @@ private:
         marker.color.r = 0.0;
         marker.color.g = 1.0;
         marker.color.b = 0.0;
-        marker.header.frame_id = "ego_racecar/laser_model";
+        marker.header.frame_id = target_frame_;
 
         vis_cur_point_pub_->publish(marker);
         wpt_pub_->publish(next_point);
@@ -184,7 +184,7 @@ private:
                 marker.color.r = 0.0;
                 marker.color.g = 0.0;
                 marker.color.b = 1.0;
-                marker.header.frame_id = "map";
+                marker.header.frame_id = source_frame_;
 
                 marker_array.markers.push_back(marker);
 

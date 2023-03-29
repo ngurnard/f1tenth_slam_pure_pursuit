@@ -150,7 +150,7 @@ private:
 
         vis_cur_point_pub_->publish(marker);
         wpt_pub_->publish(next_point);
-        vis_waypoint_pub_->publish(marker_array);
+        // vis_waypoint_pub_->publish(marker_array);
     }
 
     void csv_to_waypoints()
@@ -216,6 +216,7 @@ private:
                 line_vector.clear();
             }
             file.close();
+
         }
         
         fname = "waypoints_shoot.csv";
@@ -270,6 +271,8 @@ private:
             }
             file2.close();
         }
+        vis_waypoint_pub_->publish(marker_array);
+
     }
 
 public:

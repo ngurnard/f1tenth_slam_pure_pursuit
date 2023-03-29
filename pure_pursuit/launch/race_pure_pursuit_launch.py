@@ -35,7 +35,7 @@ def generate_launch_description():
                 'waypoints_path' : share_directory,
                 'waypoints_file' : "waypoints_optimized_1.csv",
                 'v_csv'          :  0,
-                'v'              :  3.0
+                'v'              :  4.0
                 }
             ]
         ),

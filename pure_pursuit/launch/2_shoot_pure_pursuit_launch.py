@@ -20,7 +20,7 @@ def generate_launch_description():
             name='pure_pursuit_node',
             parameters=[
             {
-            'Kp' : 0.29,
+            'Kp' : 0.28,
             }
             ]
         ),
@@ -33,7 +33,7 @@ def generate_launch_description():
                 'global_frame'   : "map",
                 'local_frame'    : "laser",
                 'waypoints_path' : share_directory,
-                'waypoints_file' : "waypoints_mu0p5_dense_move_points_faster.csv",
+                'waypoints_file' : "waypoints_mu0p5_dense_move_points_super_faster.csv",
                 'v_csv'          : 1,
                 'v'              : 3.0,
                 'L'              : 1.2 

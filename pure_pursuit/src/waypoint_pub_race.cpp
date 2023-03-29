@@ -52,7 +52,7 @@ private:
     visualization_msgs::msg::MarkerArray marker_array; 
 
     // Referece start line
-    double start_line_x = -13.0;
+    double start_line_x = -11.0;
     double start_line_y = 0.0;
 
     int lap_count = -1;

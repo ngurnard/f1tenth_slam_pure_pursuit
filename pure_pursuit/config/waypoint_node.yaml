@@ -1,0 +1,10 @@
+/waypoint_node:
+  ros__parameters:
+    L: 1.5
+    global_frame: map
+    local_frame: laser
+    use_sim_time: false
+    v: 3.0
+    v_csv: 1
+    waypoints_file: waypoints_mu0p5_dense_move_points.csv
+    waypoints_path: /home/nvidia/f1tenth_ws/install/pure_pursuit/share/pure_pursuit/waypoints/

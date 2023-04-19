@@ -20,7 +20,7 @@ def generate_launch_description():
             parameters=[
             {
             'Kp' : 0.2,
-            'drive_topic'    : "/drive",
+            'drive_topic' : "/drive",
             }
             ]
         ),
@@ -36,6 +36,22 @@ def generate_launch_description():
                 'waypoints_file' : "waypoints_raceline_2.csv",
                 'v_csv'          :  0,
                 'v'              :  3.0
+                }
+            ],
+            output='screen',
+        ),
+        Node(
+            package='pure_pursuit',
+            executable='waypoint_node',
+            name='waypoint_node',
+            parameters=[
+                {
+                'global_frame'   : "map",
+                'local_frame'    : "opp_racecar/laser_model",
+                'waypoints_path' : share_directory,
+                'waypoints_file' : "waypoints_raceline_2.csv",
+                'v_csv'          :  0,
+                'v'              :  4.0
                 }
             ],
             output='screen',

@@ -185,7 +185,7 @@ private:
         for(int r=idx_n15; r<idx_p15; r++)
         {
             // Check if there is an obstacle in front of the car
-            if(range_data[r] < this->get_parameter("obstacle_threshold").get_parameter_value().get<float>())
+            if(range_data[r] < this->get_parameter("opp_dist").get_parameter_value().get<float>())
             {
                 if(LANE_NUMBER == 1):
                     LANE_NUMBER = 2;
@@ -200,7 +200,7 @@ private:
                 for(int left=idx_p15; left<idx_p135; left++)
                 // named (inner)
                 {
-                    if(range_data[left] < 1.2 * this->get_parameter("obstacle_threshold").get_parameter_value().get<float>())
+                    if(range_data[left] < 1.2 * this->get_parameter("opp_dist").get_parameter_value().get<float>())
                     {
                         break(outer);
                     }

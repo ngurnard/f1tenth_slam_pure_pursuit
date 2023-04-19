@@ -64,6 +64,7 @@ private:
     std::string cur_wpt_topic_ = "/waypoint";
     std::string drive_topic_ = "/drive";
 
+
     rclcpp::Subscription<interfaces_hot_wheels::msg::Waypoint>::SharedPtr waypoint_sub_;
     
     rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr drive_pub_;
@@ -86,6 +87,7 @@ public:
         
  
         this->declare_parameter("Kp", 0.1);
+        this->declare_parameter<std::string>("drive_topic", "/drive");
     }
     
 

@@ -20,7 +20,7 @@ def generate_launch_description():
             name='pure_pursuit_node',
             parameters=[
             {
-            'Kp' : 0.29,
+            'Kp' : 0.2,
             }
             ]
         ),

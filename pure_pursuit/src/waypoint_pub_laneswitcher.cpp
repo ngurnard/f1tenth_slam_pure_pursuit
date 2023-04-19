@@ -25,6 +25,13 @@ using namespace std;
 
 #include "interfaces_hot_wheels/msg/waypoint.hpp"
 
+#define named(blockname) goto blockname; \
+                         blockname##_skip: if (0) \
+                         blockname:
+
+#define break(blockname) goto blockname##_skip
+
+
 class Waypoint : public rclcpp::Node
 {
 
@@ -86,6 +93,8 @@ private:
         interfaces_hot_wheels::msg::Waypoint next_point;
         std::vector<interfaces_hot_wheels::msg::Waypoint> points_to_track;
 
+        // choose points to track
+        // different lanes for overtake maneuver
         if(LANE_NUMBER == 1)
             points_to_track = waypoints_lane1;
         else if(LANE_NUMBER == 2)
@@ -160,7 +169,47 @@ private:
 
         // add some logic to detect obstacles and update LANE_NUMBER global variable
 
+        // LANE_NUMBER = 1 should be default
+        // LANE_NUMBER = 2 for overtake maneuver
+        // LANE_NUMBER = 3 for wide overtake maneuver
+
+        // LiDAR ray indices corresponding to angle in degrees
+
+        int idx_0   = 540;
+        int idx_n15 = 479;
+        int idx_p15 = 600;
+        int idx_n35 = 399;
+        int idx_p35 = 690;
+
+        named (outer)
+        for(int r=idx_n15; r<idx_p15; r++)
+        {
+            // Check if there is an obstacle in front of the car
+            if(range_data[r] < this->get_parameter("obstacle_threshold").get_parameter_value().get<float>())
+            {
+                if(LANE_NUMBER == 1):
+                    LANE_NUMBER = 2;
+                else if(LANE_NUMBER == 2):
+                    LANE_NUMBER = 3;
+                break;
+            }
+
+            if(LANE_NUMBER == 2 || LANE_NUMBER == 3)
+            {
+                // Check if there is an obstacle on the left side of the car
+                for(int left=idx_p15; left<idx_p135; left++)
+                // named (inner)
+                {
+                    if(range_data[left] < 1.2 * this->get_parameter("obstacle_threshold").get_parameter_value().get<float>())
+                    {
+                        break(outer);
+                    }
+                }
+                LANE_NUMBER = 1;
+            }
+        }
     }
+
 
     void csv_to_waypoints()
     {
@@ -356,7 +405,10 @@ public:
 
         this->declare_parameter("waypoints_path");
         // this->declare_parameter("waypoints path", "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints");
-        this->declare_parameter("waypoints_file", "waypoints1.csv");    
+        this->declare_parameter("waypoints_file", "waypoints1.csv");   
+
+        param_desc.description = "Distance in front of car to check for opponent";
+        this->declare_parameter("opp_dist", 1.0, param_desc); 
 
 
 

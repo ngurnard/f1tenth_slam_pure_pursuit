@@ -20,14 +20,13 @@ def generate_launch_description():
             parameters=[
             {
             'Kp' : 0.2,
-            'drive_topic'    : "/drive",
             }
             ]
         ),
         Node(
             package='pure_pursuit',
-            executable='waypoint_node',
-            name='waypoint_node',
+            executable='waypoint_laneswitcher_node',
+            name='waypoint_laneswitcher_node',
             parameters=[
                 {
                 'global_frame'   : "map",

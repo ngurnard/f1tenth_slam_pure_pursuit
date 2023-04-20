@@ -220,7 +220,7 @@ private:
         std::string line, s;
         // std::ifstream file(relative_path + fname);
         // file.open("waypoints_drive.csv");
-        fname = "waypoints_lane1.csv";
+        fname = "waypoints_raceline_1.csv";
         std::ifstream file1(relative_path + fname);
  
         visualization_msgs::msg::Marker marker;
@@ -279,7 +279,7 @@ private:
 
         }
         
-        fname = "waypoints_lane2.csv";
+        fname = "waypoints_racline_lane2.csv";
         std::ifstream file2(relative_path + fname);
 
         if(!file2.is_open())
@@ -332,7 +332,7 @@ private:
             file2.close();
         }
 
-        fname = "waypoints_lane3.csv";
+        fname = "waypoints_raceline_2.csv";
         std::ifstream file3(relative_path + fname);
 
         if(!file3.is_open())
@@ -372,9 +372,9 @@ private:
                 marker.scale.y = 0.15;
                 marker.scale.z = 0.15;
                 marker.color.a = 0.5;
-                marker.color.r = 1.0;
-                marker.color.g = 0.0;
-                marker.color.b = 0.0;
+                marker.color.r = 0.0;
+                marker.color.g = 1.0;
+                marker.color.b = 1.0;
                 marker.header.frame_id = global_frame_;
 
                 marker_array.markers.push_back(marker);
@@ -391,7 +391,7 @@ private:
 
 public:
     // default contructor
-    Waypoint() : Node("waypoint_race_node") {
+    Waypoint() : Node("waypoint_laneswitcher_node") {
         // cout << "Current path" << ament_index_cpp::ameget_package_share_directory("pure_pursuit") << endl;
         auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
         param_desc.description = "Lookahead distance for Pure Pursuit";
@@ -405,7 +405,7 @@ public:
 
         this->declare_parameter("waypoints_path");
         // this->declare_parameter("waypoints path", "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints");
-        this->declare_parameter("waypoints_file", "waypoints1.csv");   
+        this->declare_parameter("waypoints_file", "waypoints_raceline_1.csv");   
 
         param_desc.description = "Distance in front of car to check for opponent";
         this->declare_parameter("opp_dist", 1.0, param_desc); 

@@ -55,6 +55,10 @@ add_executable(waypoint_race_node src/waypoint_pub_race.cpp)
 ament_target_dependencies(waypoint_race_node 
   rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros interfaces_hot_wheels tf2_geometry_msgs
 )
+add_executable(waypoint_laneswitcher_node src/waypoint_pub_laneswitcher.cpp)
+ament_target_dependencies(waypoint_laneswitcher_node 
+  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros interfaces_hot_wheels tf2_geometry_msgs
+)
 
 # Install Cpp executables
 install(TARGETS
@@ -62,6 +66,7 @@ install(TARGETS
   waypoint_node
   pose_fake_pub_node
   waypoint_race_node
+  waypoint_laneswitcher_node
   DESTINATION lib/${PROJECT_NAME})
 
 # Install Python modules
@@ -71,6 +76,7 @@ ament_python_install_package(${PROJECT_NAME})
 install(PROGRAMS
   scripts/pure_pursuit_node.py
   scripts/waypoint_logger.py
+  scripts/waypoint_spline.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

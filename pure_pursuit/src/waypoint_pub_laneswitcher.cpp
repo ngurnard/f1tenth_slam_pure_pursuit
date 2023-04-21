@@ -344,7 +344,7 @@ private:
         std::string line, s;
         // std::ifstream file(relative_path + fname);
         // file.open("waypoints_drive.csv");
-        string fname = "waypoints_centerline_1.csv";
+        string fname = "manual_lane_1.csv";
         std::ifstream file1(relative_path + fname);
  
         visualization_msgs::msg::Marker marker;

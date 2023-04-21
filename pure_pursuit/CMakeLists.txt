@@ -76,6 +76,7 @@ ament_python_install_package(${PROJECT_NAME})
 install(PROGRAMS
   scripts/pure_pursuit_node.py
   scripts/waypoint_logger.py
+  scripts/lidar_logger.py
   scripts/waypoint_spline.py
   DESTINATION lib/${PROJECT_NAME}
 )

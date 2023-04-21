@@ -63,8 +63,21 @@ private:
     std::string local_frame_;
 
     visualization_msgs::msg::MarkerArray marker_array; 
+    
+    /*
+    LANES:
+    1: Fast, optimal raceline
+    2: Center line
+    3: Outer line
+    */
+    int LANE_NUMBER = 1; // 1, 2 or 3// 1, 2 or 3
 
-    int LANE_NUMBER = 1;
+    /*
+    REGIONS:
+    1: 1 < 2 < 3 (Optimal on the left)
+    2: 3 < 2 < 1 (Optimal on the right)
+    */
+    int REGION = 1; // 1 or 2
 
     
     void pose_callback(const geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg)
@@ -88,6 +101,15 @@ private:
             TarFrameRel.c_str(), SrcFrameRel.c_str(), ex.what());
             return;
         }
+
+        // Find region
+        if( pose_msg->pose.position.x > 2.0 && pose_msg->pose.position.x < 7.5 &&
+            pose_msg->pose.position.y > 2.0 && pose_msg->pose.position.y < 9.0)
+            REGION = 2;
+        else
+            REGION = 1;
+
+        RCLCPP_INFO(this->get_logger(), "Lane number: %d and Region: %d", LANE_NUMBER, REGION);
 
         double min_dist = MAXFLOAT;
         interfaces_hot_wheels::msg::Waypoint next_point;
@@ -175,26 +197,23 @@ private:
         // LANE_NUMBER = 3 for wide overtake maneuver
 
         // LiDAR ray indices corresponding to angle in degrees
-
-        RCLCPP_INFO(this->get_logger(), "Lane number: %d", LANE_NUMBER);
-
         int idx_0   = 540;
         int idx_n15 = 479;
         int idx_p15 = 600;
         int idx_n35 = 399;
         int idx_p35 = 690;
-
-
-
+        int idx_n60 = 299;
+        int idx_p60 = 780;
 
         // TODO: Add logic to detect obstacles and update LANE_NUMBER global variable
-        bool lane_2_to_1_flag = true;
+        bool flag_obstacle = false;
         named (outer)
         for(int r=idx_n15; r<idx_p15; r++)
         {
             // Check if there is an obstacle in front of the car
-            if(range_data[r] < this->get_parameter("opp_dist").get_parameter_value().get<float>())
+            if(range_data[r] < this->get_parameter("straight_opp_dist").get_parameter_value().get<float>())
             {
+                flag_obstacle = true;
                 // RCLCPP_INFO(this->get_logger(), "Obstacle detected in front of the car");
                 if(LANE_NUMBER == 1)
                 {
@@ -204,37 +223,110 @@ private:
                     
                 else if(LANE_NUMBER == 2)
                 {
-                    // Check if there is an obstacle on the left side of the car
-                    for(int left=idx_p15; left<idx_p35; left++)
+                    if (REGION == 1)
                     {
-                        if(range_data[left] < 1.2 * this->get_parameter("opp_dist").get_parameter_value().get<float>())
+                        // Check if there is an obstacle on the left side of the car
+                        for(int left=idx_p15; left<idx_p60; left++)
                         {
-                            LANE_NUMBER = 3;
-                            lane_2_to_1_flag = false;
-                            break(outer);
+                            if(range_data[left] < this->get_parameter("side_opp_dist").get_parameter_value().get<float>())
+                            {
+                                LANE_NUMBER = 3;
+                                break(outer);
+                            }
                         }
-                    }
-                    if(lane_2_to_1_flag)
                         LANE_NUMBER = 1;
                         break(outer);
-                }
-                else if(LANE_NUMBER == 3)
-                    LANE_NUMBER = 1;
-                    break(outer);
-            }
-
-            if(LANE_NUMBER == 2 || LANE_NUMBER == 3)
-            {
-                // Check if there is an obstacle on the left side of the car
-                for(int left=idx_p15; left<idx_p35; left++)
-                // named (inner)
-                {
-                    if(range_data[left] < 1.2 * this->get_parameter("opp_dist").get_parameter_value().get<float>())
+                    }
+                    else if (REGION == 2)
                     {
+                        // Check if there is an obstacle on the right side of the car
+                        for(int right=idx_n60; right<idx_n15; right++)
+                        {
+                            if(range_data[right] < this->get_parameter("side_opp_dist").get_parameter_value().get<float>())
+                            {
+                                LANE_NUMBER = 3;
+                                break(outer);
+                            }
+                        }
+                        LANE_NUMBER = 1;
                         break(outer);
                     }
                 }
-                LANE_NUMBER = 1;
+                else
+                {
+                    LANE_NUMBER = 2;
+                    break(outer);
+                }
+            }
+        }
+
+        if(!flag_obstacle)
+        {
+            if(LANE_NUMBER == 2)
+            {
+                if (REGION == 1)
+                {
+                    // Check if there is an obstacle on the left side of the car
+                    bool left_obstacle = false;
+                    for(int left=idx_p15; left<idx_p60; left++)
+                    {
+                        if(range_data[left] < this->get_parameter("side_opp_dist").get_parameter_value().get<float>())
+                        {
+                            left_obstacle = true;
+                            break;
+                        }
+                    }
+                    if(!left_obstacle)
+                        LANE_NUMBER = 1;
+                }
+                else if (REGION == 2)
+                {
+                    // Check if there is an obstacle on the right side of the car
+                    bool right_obstacle = false;
+                    for(int right=idx_n60; right<idx_n15; right++)
+                    {
+                        if(range_data[right] < this->get_parameter("side_opp_dist").get_parameter_value().get<float>())
+                        {
+                            right_obstacle = true;
+                            break;
+                        }
+                    }
+                    if(!right_obstacle)
+                        LANE_NUMBER = 1;
+                }
+            }
+            else if(LANE_NUMBER == 3)
+            {
+                if (REGION == 1)
+                {
+                    // Check if there is an obstacle on the left side of the car
+                    bool left_obstacle = false;
+                    for(int left=idx_p15; left<idx_p60; left++)
+                    {
+                        if(range_data[left] < this->get_parameter("side_opp_dist").get_parameter_value().get<float>())
+                        {
+                            left_obstacle = true;
+                            break;
+                        }
+                    }
+                    if(!left_obstacle)
+                        LANE_NUMBER = 2;
+                }
+                else if (REGION == 2)
+                {
+                    // Check if there is an obstacle on the right side of the car
+                    bool right_obstacle = false;
+                    for(int right=idx_n60; right<idx_n15; right++)
+                    {
+                        if(range_data[right] < this->get_parameter("side_opp_dist").get_parameter_value().get<float>())
+                        {
+                            right_obstacle = true;
+                            break;
+                        }
+                    }
+                    if(!right_obstacle)
+                        LANE_NUMBER = 2;
+                }
             }
         }
     }
@@ -437,8 +529,9 @@ public:
         // this->declare_parameter("waypoints_file", "waypoints_raceline_1.csv");   
 
         param_desc.description = "Distance in front of car to check for opponent";
-        this->declare_parameter("opp_dist", 2.0, param_desc); 
-
+        this->declare_parameter("straight_opp_dist", 2.0, param_desc);
+        param_desc.description = "Distance on the side of car to check for opponent";
+        this->declare_parameter("side_opp_dist", 0.5, param_desc);
 
 
         wpt_pub_ = this->create_publisher<interfaces_hot_wheels::msg::Waypoint>(

@@ -176,20 +176,32 @@ private:
 
         // LiDAR ray indices corresponding to angle in degrees
 
+        RCLCPP_INFO(this->get_logger(), "Lane number: %d", LANE_NUMBER);
+
         int idx_0   = 540;
         int idx_n15 = 479;
         int idx_p15 = 600;
         int idx_n35 = 399;
         int idx_p35 = 690;
 
+
+
+
+        // TODO: Add logic to detect obstacles and update LANE_NUMBER global variable
+        bool lane_2_to_1_flag = true;
         named (outer)
         for(int r=idx_n15; r<idx_p15; r++)
         {
             // Check if there is an obstacle in front of the car
             if(range_data[r] < this->get_parameter("opp_dist").get_parameter_value().get<float>())
             {
+                // RCLCPP_INFO(this->get_logger(), "Obstacle detected in front of the car");
                 if(LANE_NUMBER == 1)
+                {
                     LANE_NUMBER = 2;
+                    break(outer);
+                }
+                    
                 else if(LANE_NUMBER == 2)
                 {
                     // Check if there is an obstacle on the left side of the car
@@ -198,12 +210,17 @@ private:
                         if(range_data[left] < 1.2 * this->get_parameter("opp_dist").get_parameter_value().get<float>())
                         {
                             LANE_NUMBER = 3;
-                            break;
+                            lane_2_to_1_flag = false;
+                            break(outer);
                         }
                     }
+                    if(lane_2_to_1_flag)
+                        LANE_NUMBER = 1;
+                        break(outer);
                 }
-                LANE_NUMBER = 1;
-                break;
+                else if(LANE_NUMBER == 3)
+                    LANE_NUMBER = 1;
+                    break(outer);
             }
 
             if(LANE_NUMBER == 2 || LANE_NUMBER == 3)
@@ -232,7 +249,7 @@ private:
         std::string line, s;
         // std::ifstream file(relative_path + fname);
         // file.open("waypoints_drive.csv");
-        string fname = "waypoints_raceline_1.csv";
+        string fname = "waypoints_centerline_1.csv";
         std::ifstream file1(relative_path + fname);
  
         visualization_msgs::msg::Marker marker;
@@ -291,7 +308,7 @@ private:
 
         }
         
-        fname = "waypoints_raceline_lane2.csv";
+        fname = "waypoints_centerline_2.csv";
         std::ifstream file2(relative_path + fname);
 
         if(!file2.is_open())
@@ -344,7 +361,7 @@ private:
             file2.close();
         }
 
-        fname = "waypoints_final_lane3.csv";
+        fname = "waypoints_lane_3.csv";
         std::ifstream file3(relative_path + fname);
 
         if(!file3.is_open())
@@ -420,7 +437,7 @@ public:
         // this->declare_parameter("waypoints_file", "waypoints_raceline_1.csv");   
 
         param_desc.description = "Distance in front of car to check for opponent";
-        this->declare_parameter("opp_dist", 1.2, param_desc); 
+        this->declare_parameter("opp_dist", 2.0, param_desc); 
 
 
 

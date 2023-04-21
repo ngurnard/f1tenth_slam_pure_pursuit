@@ -191,7 +191,18 @@ private:
                 if(LANE_NUMBER == 1)
                     LANE_NUMBER = 2;
                 else if(LANE_NUMBER == 2)
-                    LANE_NUMBER = 3;
+                {
+                    // Check if there is an obstacle on the left side of the car
+                    for(int left=idx_p15; left<idx_p35; left++)
+                    {
+                        if(range_data[left] < 1.2 * this->get_parameter("opp_dist").get_parameter_value().get<float>())
+                        {
+                            LANE_NUMBER = 3;
+                            break;
+                        }
+                    }
+                }
+                LANE_NUMBER = 1;
                 break;
             }
 

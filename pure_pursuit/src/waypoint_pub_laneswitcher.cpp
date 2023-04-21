@@ -124,7 +124,10 @@ private:
         else if(LANE_NUMBER == 3)
             points_to_track = waypoints_lane3;
         else
-            points_to_track = waypoints_lane1;
+        {
+            // points_to_track = waypoints_lane1;
+            throw("Invalid lane number - LINE 130");
+        }
 
         // track chosen points
         for (auto wpt : points_to_track) {

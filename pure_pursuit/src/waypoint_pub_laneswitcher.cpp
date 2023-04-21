@@ -99,9 +99,10 @@ private:
             points_to_track = waypoints_lane1;
         else if(LANE_NUMBER == 2)
             points_to_track = waypoints_lane2;
-        else
+        else if(LANE_NUMBER == 3)
             points_to_track = waypoints_lane3;
-
+        else
+            points_to_track = waypoints_lane1;
 
         // track chosen points
         for (auto wpt : points_to_track) {
@@ -215,12 +216,12 @@ private:
     {
         cout << this->get_parameter("waypoints_path").as_string() << endl;
         string relative_path = this->get_parameter("waypoints_path").as_string(); //"/sim_ws/src/pure_pursuit/pure_pursuit/waypoints/";
-        string fname = this->get_parameter("waypoints_file").as_string(); // "waypoints1.csv";
+        // string fname = this->get_parameter("waypoints_file").as_string(); // "waypoints1.csv";
         
         std::string line, s;
         // std::ifstream file(relative_path + fname);
         // file.open("waypoints_drive.csv");
-        fname = "waypoints_raceline_1.csv";
+        string fname = "waypoints_raceline_1.csv";
         std::ifstream file1(relative_path + fname);
  
         visualization_msgs::msg::Marker marker;
@@ -240,7 +241,7 @@ private:
 
                 stringstream ss(line);
 
-                while(getline(ss, s, ',')) 
+                while(getline(ss, s, ','))   
                 {
                     // store token string in the vector
                     line_vector.push_back(stod(s));
@@ -279,7 +280,7 @@ private:
 
         }
         
-        fname = "waypoints_racline_lane2.csv";
+        fname = "waypoints_raceline_lane2.csv";
         std::ifstream file2(relative_path + fname);
 
         if(!file2.is_open())
@@ -332,7 +333,7 @@ private:
             file2.close();
         }
 
-        fname = "waypoints_raceline_2.csv";
+        fname = "waypoints_final_lane3.csv";
         std::ifstream file3(relative_path + fname);
 
         if(!file3.is_open())
@@ -405,10 +406,10 @@ public:
 
         this->declare_parameter("waypoints_path");
         // this->declare_parameter("waypoints path", "/sim_ws/src/pure_pursuit/pure_pursuit/waypoints");
-        this->declare_parameter("waypoints_file", "waypoints_raceline_1.csv");   
+        // this->declare_parameter("waypoints_file", "waypoints_raceline_1.csv");   
 
         param_desc.description = "Distance in front of car to check for opponent";
-        this->declare_parameter("opp_dist", 1.0, param_desc); 
+        this->declare_parameter("opp_dist", 1.2, param_desc); 
 
 
 

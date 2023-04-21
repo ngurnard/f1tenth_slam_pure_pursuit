@@ -47,11 +47,14 @@ class WaypointLogger(Node):
 
             euler = euler_from_quaternion(quaternion)
             speed = 3.0
+            lookahead = 1.0
 
             file.write('%f,%f,%f,%f\n' % (data.pose.position.x,
                                             data.pose.position.y,
                                             euler[2],
-                                            speed))
+                                            speed,
+                                            lookahead,
+                                            data.header.stamp.sec))
 
             previous_time = data.header.stamp.sec
  

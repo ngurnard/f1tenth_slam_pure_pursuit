@@ -109,7 +109,7 @@ private:
         else
             REGION = 1;
 
-        RCLCPP_INFO(this->get_logger(), "Lane number: %d and Region: %d", LANE_NUMBER, REGION);
+        // RCLCPP_INFO(this->get_logger(), "Lane number: %d and Region: %d", LANE_NUMBER, REGION);
 
         double min_dist = MAXFLOAT;
         interfaces_hot_wheels::msg::Waypoint next_point;
@@ -150,7 +150,14 @@ private:
 
             double dist = sqrt(pow(wpt_transformed.pose.position.x, 2)
                             + pow(wpt_transformed.pose.position.y, 2)); // l2 norm
-            if(dist < min_dist && dist > this->get_parameter("L").get_parameter_value().get<float>()){
+
+            double lookahead;
+            if(!this->get_parameter("v_csv").get_parameter_value().get<int>())
+                    lookahead = this->get_parameter("L").get_parameter_value().get<float>();
+                else
+                    lookahead = wpt.l;
+            RCLCPP_INFO(this->get_logger(), "L: %f", lookahead);
+            if(dist < min_dist && dist > lookahead){
                 min_dist = dist;
                 next_point.x = wpt_transformed.pose.position.x;
                 next_point.y = wpt_transformed.pose.position.y;
@@ -158,7 +165,8 @@ private:
                 if(!this->get_parameter("v_csv").get_parameter_value().get<int>())
                     next_point.v = this->get_parameter("v").get_parameter_value().get<float>();
                 else
-                    next_point.v = wpt.v;;
+                    next_point.v = wpt.v;
+
             }
         }
 
@@ -374,9 +382,14 @@ private:
                 p.y = line_vector[1];
                 if(this->get_parameter("v_csv").get_parameter_value().get<int>())
                 {
+                    RCLCPP_INFO(this->get_logger(), "v : %d", line_vector[3]);
+                    RCLCPP_INFO(this->get_logger(), "l : %d", line_vector[4]);
                     cout << "v from csv" <<  line_vector[3] <<endl;
+                    cout << "l from csv" <<  line_vector[4] <<endl;
                     p.v = line_vector[3];
+                    p.l = line_vector[4];
                 }
+               
                 
 
                 waypoints_lane1.push_back(p);        
@@ -403,7 +416,7 @@ private:
 
         }
         
-        fname = "waypoints_centerline_2.csv";
+        fname = "manual_lane_2.csv";
         std::ifstream file2(relative_path + fname);
 
         if(!file2.is_open())
@@ -428,8 +441,12 @@ private:
                 p.y = line_vector[1];
                 if(this->get_parameter("v_csv").get_parameter_value().get<int>())
                 {
+                    RCLCPP_INFO(this->get_logger(), "v : %d", line_vector[3]);
+                    RCLCPP_INFO(this->get_logger(), "l : %d", line_vector[4]);
                     cout << "v from csv" <<  line_vector[3] <<endl;
+                    cout << "l from csv" <<  line_vector[4] <<endl;
                     p.v = line_vector[3];
+                    p.l = line_vector[4];
                 }
                 
 
@@ -442,7 +459,7 @@ private:
                 marker.scale.x = 0.15;
                 marker.scale.y = 0.15;
                 marker.scale.z = 0.15;
-                marker.color.a = 0.5;
+                marker.color.a = 0.05;
                 marker.color.r = 1.0;
                 marker.color.g = 0.0;
                 marker.color.b = 0.0;
@@ -481,8 +498,12 @@ private:
                 p.y = line_vector[1];
                 if(this->get_parameter("v_csv").get_parameter_value().get<int>())
                 {
+                    RCLCPP_INFO(this->get_logger(), "v : %d", line_vector[3]);
+                    RCLCPP_INFO(this->get_logger(), "l : %d", line_vector[4]);
                     cout << "v from csv" <<  line_vector[3] <<endl;
+                    cout << "l from csv" <<  line_vector[4] <<endl;
                     p.v = line_vector[3];
+                    p.l = line_vector[4];
                 }
                 
 
@@ -495,7 +516,7 @@ private:
                 marker.scale.x = 0.15;
                 marker.scale.y = 0.15;
                 marker.scale.z = 0.15;
-                marker.color.a = 0.5;
+                marker.color.a = 0.01;
                 marker.color.r = 0.0;
                 marker.color.g = 1.0;
                 marker.color.b = 1.0;
@@ -523,6 +544,8 @@ public:
         this->declare_parameter("v", 2.0);
         param_desc.description = "Integer flag to use velocities from .csv";
         this->declare_parameter("v_csv", 0, param_desc);
+
+
 
         global_frame_ = this->declare_parameter<std::string>("gloabal_frame", "map");
         local_frame_ = this->declare_parameter<std::string>("local_frame", "laser");

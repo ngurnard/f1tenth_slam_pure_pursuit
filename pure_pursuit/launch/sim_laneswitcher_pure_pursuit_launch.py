@@ -32,7 +32,7 @@ def generate_launch_description():
                 'global_frame'   : "map",
                 'local_frame'    : "ego_racecar/laser_model",
                 'waypoints_path' : share_directory,
-                'v_csv'          :  0,
+                'v_csv'          :  1,
                 'v'              :  1.0
                 }
             ],

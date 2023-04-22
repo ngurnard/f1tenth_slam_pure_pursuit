@@ -308,7 +308,7 @@ private:
 
         }
         
-        fname = "lane2.csv";
+        fname = "traj_race_cl.csv";
         std::ifstream file2(relative_path + fname);
 
         if(!file2.is_open())

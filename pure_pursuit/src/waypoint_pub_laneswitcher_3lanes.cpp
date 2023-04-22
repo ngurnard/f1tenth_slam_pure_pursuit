@@ -53,9 +53,9 @@ private:
     float theta;
     int number_of_rays;
 
-    std::vector<interfaces_hot_wheels::msg::Waypoint> lane1;
-    std::vector<interfaces_hot_wheels::msg::Waypoint> lane2;
-
+    std::vector<interfaces_hot_wheels::msg::Waypoint> waypoints_lane1;
+    std::vector<interfaces_hot_wheels::msg::Waypoint> waypoints_lane2;
+    std::vector<interfaces_hot_wheels::msg::Waypoint> waypoints_lane3;
 
     std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
     std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
@@ -66,8 +66,9 @@ private:
     
     /*
     LANES:
-    1: optimized raceline assuring minimum time (TUMUNICH optimizer)
-    2: manual, seemingly good raceline
+    1: Fast, optimal raceline
+    2: Center line
+    3: Outer line
     */
     int LANE_NUMBER = 1; // 1, 2 or 3// 1, 2 or 3
 
@@ -102,11 +103,11 @@ private:
         }
 
         // Find region
-        // if( pose_msg->pose.position.x > 2.0 && pose_msg->pose.position.x < 7.5 &&
-        //     pose_msg->pose.position.y > 2.0 && pose_msg->pose.position.y < 9.0)
-        //     REGION = 2;
-        // else
-        //     REGION = 1;
+        if( pose_msg->pose.position.x > 2.0 && pose_msg->pose.position.x < 7.5 &&
+            pose_msg->pose.position.y > 2.0 && pose_msg->pose.position.y < 9.0)
+            REGION = 2;
+        else
+            REGION = 1;
 
         // RCLCPP_INFO(this->get_logger(), "Lane number: %d and Region: %d", LANE_NUMBER, REGION);
 
@@ -117,14 +118,16 @@ private:
         // choose points to track
         // different lanes for overtake maneuver
         if(LANE_NUMBER == 1)
-            points_to_track = lane1;
-        else //if(LANE_NUMBER == 2)
-            points_to_track = lane2;
-        // else
-        // {
-        //     // points_to_track = waypoints_lane1;
-        //     throw("Invalid lane number - LINE 130");
-        // }
+            points_to_track = waypoints_lane1;
+        else if(LANE_NUMBER == 2)
+            points_to_track = waypoints_lane2;
+        else if(LANE_NUMBER == 3)
+            points_to_track = waypoints_lane3;
+        else
+        {
+            // points_to_track = waypoints_lane1;
+            throw("Invalid lane number - LINE 130");
+        }
 
         // track chosen points
         for (auto wpt : points_to_track) {
@@ -221,20 +224,124 @@ private:
             // Check if there is an obstacle in front of the car
             if(range_data[r] < this->get_parameter("straight_opp_dist").get_parameter_value().get<float>())
             {
-                if (LANE_NUMBER = 1)
+                flag_obstacle = true;
+                // RCLCPP_INFO(this->get_logger(), "Obstacle detected in front of the car");
+                if(LANE_NUMBER == 1)
                 {
                     LANE_NUMBER = 2;
                     break(outer);
                 }
+                    
+                else if(LANE_NUMBER == 2)
+                {
+                    if (REGION == 1)
+                    {
+                        // Check if there is an obstacle on the left side of the car
+                        for(int left=idx_p15; left<idx_p60; left++)
+                        {
+                            if(range_data[left] < this->get_parameter("side_opp_dist").get_parameter_value().get<float>())
+                            {
+                                LANE_NUMBER = 3;
+                                break(outer);
+                            }
+                        }
+                        LANE_NUMBER = 1;
+                        break(outer);
+                    }
+                    else if (REGION == 2)
+                    {
+                        // Check if there is an obstacle on the right side of the car
+                        for(int right=idx_n60; right<idx_n15; right++)
+                        {
+                            if(range_data[right] < this->get_parameter("side_opp_dist").get_parameter_value().get<float>())
+                            {
+                                LANE_NUMBER = 3;
+                                break(outer);
+                            }
+                        }
+                        LANE_NUMBER = 1;
+                        break(outer);
+                    }
+                }
                 else
                 {
-                    LANE_NUMBER = 1;
+                    LANE_NUMBER = 2;
                     break(outer);
                 }
             }
         }
 
+        if(!flag_obstacle)
+        {
+            if(LANE_NUMBER == 2)
+            {
+                if (REGION == 1)
+                {
+                    // Check if there is an obstacle on the left side of the car
+                    bool left_obstacle = false;
+                    for(int left=idx_p15; left<idx_p60; left++)
+                    {
+                        if(range_data[left] < this->get_parameter("side_opp_dist").get_parameter_value().get<float>())
+                        {
+                            left_obstacle = true;
+                            break;
+                        }
+                    }
+                    if(!left_obstacle)
+                        LANE_NUMBER = 1;
+                }
+                else if (REGION == 2)
+                {
+                    // Check if there is an obstacle on the right side of the car
+                    bool right_obstacle = false;
+                    for(int right=idx_n60; right<idx_n15; right++)
+                    {
+                        if(range_data[right] < this->get_parameter("side_opp_dist").get_parameter_value().get<float>())
+                        {
+                            right_obstacle = true;
+                            break;
+                        }
+                    }
+                    if(!right_obstacle)
+                        LANE_NUMBER = 1;
+                }
+            }
+            else if(LANE_NUMBER == 3)
+            {
+                if (REGION == 1)
+                {
+                    // Check if there is an obstacle on the left side of the car
+                    bool left_obstacle = false;
+                    for(int left=idx_p15; left<idx_p60; left++)
+                    {
+                        if(range_data[left] < this->get_parameter("side_opp_dist").get_parameter_value().get<float>())
+                        {
+                            left_obstacle = true;
+                            break;
+                        }
+                    }
+                    if(!left_obstacle)
+                        LANE_NUMBER = 2;
+                }
+                else if (REGION == 2)
+                {
+                    // Check if there is an obstacle on the right side of the car
+                    bool right_obstacle = false;
+                    for(int right=idx_n60; right<idx_n15; right++)
+                    {
+                        if(range_data[right] < this->get_parameter("side_opp_dist").get_parameter_value().get<float>())
+                        {
+                            right_obstacle = true;
+                            break;
+                        }
+                    }
+                    if(!right_obstacle)
+                        LANE_NUMBER = 2;
+                }
+            }
+        }
     }
+
 
     void csv_to_waypoints()
     {
@@ -284,7 +391,7 @@ private:
                
                 
 
-                lane1.push_back(p);        
+                waypoints_lane1.push_back(p);        
 
                 marker.type = visualization_msgs::msg::Marker::SPHERE;
                 marker.pose.position.x = p.x;
@@ -341,7 +448,7 @@ private:
                 }
                 
 
-                lane2.push_back(p);        
+                waypoints_lane2.push_back(p);        
 
                 marker.type = visualization_msgs::msg::Marker::SPHERE;
                 marker.pose.position.x = p.x;
@@ -362,6 +469,62 @@ private:
                 line_vector.clear();
             }
             file2.close();
+        }
+
+        fname = "waypoints_lane_3.csv";
+        std::ifstream file3(relative_path + fname);
+
+        if(!file3.is_open())
+        {
+            throw "waypoints/waypoints_lane3.csv file failed to open, check relative path";
+        }
+        else
+        {
+            while(getline(file3, line))
+            {
+                interfaces_hot_wheels::msg::Waypoint p;
+
+                stringstream ss(line);
+
+                while(getline(ss, s, ',')) 
+                {
+                    // store token string in the vector
+                    line_vector.push_back(stod(s));
+                }
+
+                p.x = line_vector[0]; // str to double
+                p.y = line_vector[1];
+                if(this->get_parameter("v_csv").get_parameter_value().get<int>())
+                {
+                    p.v = line_vector[3];
+                }
+                if(this->get_parameter("L_csv").get_parameter_value().get<int>())
+                {
+                    p.l = line_vector[4];
+                }
+                
+
+                waypoints_lane3.push_back(p);        
+
+                marker.type = visualization_msgs::msg::Marker::SPHERE;
+                marker.pose.position.x = p.x;
+                marker.pose.position.y = p.y;
+                marker.id = marker_id++;
+                marker.scale.x = 0.15;
+                marker.scale.y = 0.15;
+                marker.scale.z = 0.15;
+                marker.color.a = 0.01;
+                marker.color.r = 0.0;
+                marker.color.g = 1.0;
+                marker.color.b = 1.0;
+                marker.header.frame_id = global_frame_;
+
+                marker_array.markers.push_back(marker);
+
+
+                line_vector.clear();
+            }
+            file3.close();
         }
 
         vis_waypoint_pub_->publish(marker_array);

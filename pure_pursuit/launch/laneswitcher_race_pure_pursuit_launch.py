@@ -37,8 +37,8 @@ def generate_launch_description():
                 'v'                 : 3.0,
                 'L_csv'             : 1,
                 'L'                 : 1.2,
-                'straight_opp_dist' : 2.0,
-                'side_opp_dist'     : 0.5,
+                'straight_opp_dist' : 0.0,
+                'side_opp_dist'     : 0.0,
                 }
             ]
         ),

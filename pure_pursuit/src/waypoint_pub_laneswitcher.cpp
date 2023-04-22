@@ -152,7 +152,7 @@ private:
                             + pow(wpt_transformed.pose.position.y, 2)); // l2 norm
 
             double lookahead;
-            if(!this->get_parameter("v_csv").get_parameter_value().get<int>())
+            if(!this->get_parameter("L_csv").get_parameter_value().get<int>())
                     lookahead = this->get_parameter("L").get_parameter_value().get<float>();
                 else
                     lookahead = wpt.l;
@@ -382,11 +382,10 @@ private:
                 p.y = line_vector[1];
                 if(this->get_parameter("v_csv").get_parameter_value().get<int>())
                 {
-                    RCLCPP_INFO(this->get_logger(), "v : %d", line_vector[3]);
-                    RCLCPP_INFO(this->get_logger(), "l : %d", line_vector[4]);
-                    cout << "v from csv" <<  line_vector[3] <<endl;
-                    cout << "l from csv" <<  line_vector[4] <<endl;
                     p.v = line_vector[3];
+                }
+                if(this->get_parameter("L_csv").get_parameter_value().get<int>())
+                {
                     p.l = line_vector[4];
                 }
                
@@ -441,11 +440,10 @@ private:
                 p.y = line_vector[1];
                 if(this->get_parameter("v_csv").get_parameter_value().get<int>())
                 {
-                    RCLCPP_INFO(this->get_logger(), "v : %d", line_vector[3]);
-                    RCLCPP_INFO(this->get_logger(), "l : %d", line_vector[4]);
-                    cout << "v from csv" <<  line_vector[3] <<endl;
-                    cout << "l from csv" <<  line_vector[4] <<endl;
                     p.v = line_vector[3];
+                }
+                if(this->get_parameter("L_csv").get_parameter_value().get<int>())
+                {
                     p.l = line_vector[4];
                 }
                 
@@ -498,11 +496,10 @@ private:
                 p.y = line_vector[1];
                 if(this->get_parameter("v_csv").get_parameter_value().get<int>())
                 {
-                    RCLCPP_INFO(this->get_logger(), "v : %d", line_vector[3]);
-                    RCLCPP_INFO(this->get_logger(), "l : %d", line_vector[4]);
-                    cout << "v from csv" <<  line_vector[3] <<endl;
-                    cout << "l from csv" <<  line_vector[4] <<endl;
                     p.v = line_vector[3];
+                }
+                if(this->get_parameter("L_csv").get_parameter_value().get<int>())
+                {
                     p.l = line_vector[4];
                 }
                 
@@ -544,6 +541,7 @@ public:
         this->declare_parameter("v", 2.0);
         param_desc.description = "Integer flag to use velocities from .csv";
         this->declare_parameter("v_csv", 0, param_desc);
+        this->declare_parameter("L_csv", 1, param_desc);
 
 
 

@@ -95,7 +95,14 @@ private:
 
             double dist = sqrt(pow(wpt_transformed.pose.position.x, 2)
                             + pow(wpt_transformed.pose.position.y, 2)); // l2 norm
-            if(dist < min_dist && dist > this->get_parameter("L").get_parameter_value().get<float>()){
+
+            double lookahead;
+            if(!this->get_parameter("L_csv").get_parameter_value().get<int>())
+                    lookahead = this->get_parameter("L").get_parameter_value().get<float>();
+                else
+                    lookahead = wpt.l;
+            // RCLCPP_INFO(this->get_logger(), "L: %f", lookahead);
+            if(dist < min_dist && dist > lookahead){
                 min_dist = dist;
                 next_point.x = wpt_transformed.pose.position.x;
                 next_point.y = wpt_transformed.pose.position.y;
@@ -166,8 +173,11 @@ private:
                 p.y = line_vector[1];
                 if(this->get_parameter("v_csv").get_parameter_value().get<int>())
                 {
-                    cout << "v from csv" <<  line_vector[3] <<endl;
                     p.v = line_vector[3];
+                }
+                if(this->get_parameter("L_csv").get_parameter_value().get<int>())
+                {
+                    p.l = line_vector[4];
                 }
                 
 
@@ -207,6 +217,7 @@ public:
         this->declare_parameter("v", 2.0);
         param_desc.description = "Integer flag to use velocities from .csv";
         this->declare_parameter("v_csv", 0, param_desc);
+        this->declare_parameter("L_csv", 1, param_desc);
 
         source_frame_ = this->declare_parameter<string>("global_frame", "map");
         target_frame_ = this->declare_parameter<string>("local_frame", "ego_racecar/laser_model");

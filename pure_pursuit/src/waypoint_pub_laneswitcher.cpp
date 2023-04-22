@@ -116,10 +116,13 @@ private:
 
         // choose points to track
         // different lanes for overtake maneuver
-        if(LANE_NUMBER == 1)
+        if(LANE_NUMBER == 1) {
+            RCLCPP_INFO(this->get_logger(), "should now be tracking lane 1");
             points_to_track = lane1;
-        else //if(LANE_NUMBER == 2)
+        } else {//if(LANE_NUMBER == 2) 
+            RCLCPP_INFO(this->get_logger(), "should now be tracking lane 2");
             points_to_track = lane2;
+        }
         // else
         // {
         //     // points_to_track = waypoints_lane1;
@@ -153,7 +156,7 @@ private:
                     lookahead = this->get_parameter("L").get_parameter_value().get<float>();
                 else
                     lookahead = wpt.l;
-            RCLCPP_INFO(this->get_logger(), "L: %f", lookahead);
+            // RCLCPP_INFO(this->get_logger(), "L: %f", lookahead);
             if(dist < min_dist && dist > lookahead){
                 min_dist = dist;
                 next_point.x = wpt_transformed.pose.position.x;
@@ -221,13 +224,15 @@ private:
             // Check if there is an obstacle in front of the car
             if(range_data[r] < this->get_parameter("straight_opp_dist").get_parameter_value().get<float>())
             {
-                if (LANE_NUMBER = 1)
+                if (LANE_NUMBER == 1)
                 {
+                    RCLCPP_INFO(this->get_logger(), "obstacle detected. switching lane to 2");
                     LANE_NUMBER = 2;
                     break(outer);
                 }
                 else
                 {
+                    RCLCPP_INFO(this->get_logger(), "obstacle detected. switching lane to 1");
                     LANE_NUMBER = 1;
                     break(outer);
                 }

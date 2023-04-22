@@ -352,7 +352,7 @@ private:
         std::string line, s;
         // std::ifstream file(relative_path + fname);
         // file.open("waypoints_drive.csv");
-        string fname = "optimized_1.csv";
+        string fname = "lane1.csv";
         std::ifstream file1(relative_path + fname);
  
         visualization_msgs::msg::Marker marker;
@@ -415,7 +415,7 @@ private:
 
         }
         
-        fname = "centerline_1_interpolated.csv";
+        fname = "lane2.csv";
         std::ifstream file2(relative_path + fname);
 
         if(!file2.is_open())

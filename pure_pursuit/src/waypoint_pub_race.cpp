@@ -190,7 +190,7 @@ private:
                 p.y = line_vector[1];
                 if(this->get_parameter("v_csv").get_parameter_value().get<int>())
                 {
-                    cout << "v from csv" <<  line_vector[3] <<endl;
+                    // cout << "v from csv" <<  line_vector[3] <<endl;
                     p.v = line_vector[3];
                 }
                 

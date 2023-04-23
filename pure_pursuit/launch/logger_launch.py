@@ -23,14 +23,14 @@ def generate_launch_description():
             package='pure_pursuit',
             executable='lidar_logger.py',
             name='lidar_logger',
-        ),
-        IncludeLaunchDescription
-        (
-                PythonLaunchDescriptionSource
-                ([
-                    FindPackageShare("particle_filter"),
-                    '/launch',
-                    '/localize_launch.py'
-                ])
-        ) 
+        )
+        # IncludeLaunchDescription
+        # (
+        #         PythonLaunchDescriptionSource
+        #         ([
+        #             FindPackageShare("particle_filter"),
+        #             '/launch',
+        #             '/localize_launch.py'
+        #         ])
+        # ) 
     ])

@@ -49,7 +49,7 @@ class WaypointLogger(Node):
             speed = 3.0
             lookahead = 1.0
 
-            file.write('%f,%f,%f,%f\n' % (data.pose.position.x,
+            file.write('%f,%f,%f,%f,%f,%f\n' % (data.pose.position.x,
                                             data.pose.position.y,
                                             euler[2],
                                             speed,

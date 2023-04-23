@@ -28,6 +28,8 @@ private:
         y = waypoint->y;
         v = waypoint->v;
         L = waypoint->l;
+        Kp = waypoint->kp;
+        // RCLCPP_INFO(this->get_logger(), "Waypoint: %f, %f, %f, %f, %f", x, y, v, L, Kp);
 
         // TODO: calculate curvature/steering angle
         theta = 2 * (y)/pow(L, 2);
@@ -35,7 +37,7 @@ private:
         // TODO: publish drive message, don't forget to limit the steering angle.
         // kp is proportional to arlength since s=r*theta --> theta is proportional to Kp/r
         ackermann_msgs::msg::AckermannDriveStamped drive_msg;
-        drive_msg.drive.steering_angle = this->get_parameter("Kp").get_parameter_value().get<float>() * theta;
+        drive_msg.drive.steering_angle = Kp * theta;
         drive_msg.drive.speed = v;
         drive_pub_->publish(drive_msg);
         
@@ -59,7 +61,7 @@ private:
     }
 
 
-    double x, y, v, L; // position [x,y] and velocity at point, v
+    double x, y, v, L, Kp; // position [x,y] and velocity at point, v, adaptive lookahead distance, L, and proportional gain, Kp
     double theta;   // curvature
 
     std::string cur_wpt_topic_ = "/waypoint";

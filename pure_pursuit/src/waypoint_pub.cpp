@@ -113,6 +113,7 @@ private:
                 min_dist = dist;
                 next_point.x = wpt_transformed.pose.position.x;
                 next_point.y = wpt_transformed.pose.position.y;
+                next_point.kp = wpt.kp;
                 next_point.l = sqrt(pow(next_point.x, 2) + pow(next_point.y, 2));
                 if(!this->get_parameter("v_csv").get_parameter_value().get<int>())
                     next_point.v = this->get_parameter("v").get_parameter_value().get<float>();
@@ -187,7 +188,7 @@ private:
                 {
                     p.l = line_vector[4];
                 }
-                
+                p.kp = line_vector[5];
 
                 waypoints.push_back(p);        
 

@@ -33,7 +33,7 @@ def generate_launch_description():
                 'global_frame'   : "map",
                 'local_frame'    : "laser",
                 'waypoints_path' : share_directory,
-                'waypoints_file' : "waypoints_recollect_1.csv",
+                'waypoints_file' : "waypoints_recollect_1_edited.csv",
                 'v_csv'          : 0,
                 'v'              : 3.0,
                 'L'              : 1.2,

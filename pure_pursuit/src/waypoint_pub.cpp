@@ -30,19 +30,21 @@ class Waypoint : public rclcpp::Node
 
 private:
     std::string wpt_topic_ = "/waypoint";
-    std::string speed_topic_ = "/pf_speed"; // actual car speed
+    // std::string speed_topic_ = "/pf_speed"; // actual car speed
     std::string vis_waypoint_topic_ = "/waypoint_vis";
     std::string vis_cur_point_topic_ = "/cur_point_vis";
     std::string pose_topic_ = "/pf/viz/inferred_pose";
-    std::string pose_speed_topic_ = "/pf/odom/pose"; // for seeing the car's real speed
+    // std::string pose_speed_topic_ = "/pf/odom/pose"; // for seeing the car's real speed
 
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr pose_sub_;
-    rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr pose_speed_sub_;
+    // rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr pose_speed_sub_;
 
     rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr vis_waypoint_pub_;
     rclcpp::Publisher<interfaces_hot_wheels::msg::Waypoint>::SharedPtr wpt_pub_;
     rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr vis_cur_point_pub_;
-    rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr speed_pub_;
+    // rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr speed_pub_;
+
+    rclcpp::TimerBase::SharedPtr timer_;
 
 
     std::vector<interfaces_hot_wheels::msg::Waypoint> waypoints;
@@ -53,6 +55,11 @@ private:
     std::string target_frame_;
 
     visualization_msgs::msg::MarkerArray marker_array; 
+
+    void timer_callback()
+    {
+      vis_waypoint_pub_->publish(marker_array);
+    }
     
     void pose_callback(const geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg)
     {
@@ -140,12 +147,12 @@ private:
         // vis_waypoint_pub_->publish(marker_array);
     }
 
-    void pose_speed_callback(const geometry_msgs::msg::PoseStamped::ConstSharedPtr speed_msg)
-    {
-        geometry_msgs::msg::PoseStamped speed;
-        speed.pose = speed_msg->pose;
-        speed_pub_->publish(speed);
-    }
+    // void pose_speed_callback(const geometry_msgs::msg::PoseStamped::ConstSharedPtr speed_msg)
+    // {
+    //     geometry_msgs::msg::PoseStamped speed;
+    //     speed.pose = speed_msg->pose;
+    //     speed_pub_->publish(speed);
+    // }
 
     void csv_to_waypoints()
     {
@@ -214,7 +221,7 @@ private:
             }
             file.close();
         }
-        vis_waypoint_pub_->publish(marker_array);
+        // vis_waypoint_pub_->publish(marker_array);
 
     }
 
@@ -241,8 +248,8 @@ public:
         wpt_pub_ = this->create_publisher<interfaces_hot_wheels::msg::Waypoint>(
             wpt_topic_, 1);
 
-        speed_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>(
-            speed_topic_, 1);
+        // speed_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>(
+        //     speed_topic_, 1);
 
         vis_waypoint_pub_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
             vis_waypoint_topic_, 1);
@@ -253,8 +260,11 @@ public:
         pose_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
             pose_topic_, 1, std::bind(&Waypoint::pose_callback, this, std::placeholders::_1));
 
-        pose_speed_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
-            pose_speed_topic_, 1, std::bind(&Waypoint::pose_speed_callback, this, std::placeholders::_1));
+        // pose_speed_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
+        //     pose_speed_topic_, 1, std::bind(&Waypoint::pose_speed_callback, this, std::placeholders::_1));
+
+        timer_ = this->create_wall_timer(
+        500ms, std::bind(&Waypoint::timer_callback, this));
 
         tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
         tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);

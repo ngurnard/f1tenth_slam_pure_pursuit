@@ -58,6 +58,7 @@ private:
         // vis_pub_->publish(marker);
     }
 
+
     double x, y, v, L; // position [x,y] and velocity at point, v
     double theta;   // curvature
 
@@ -68,6 +69,8 @@ private:
     rclcpp::Subscription<interfaces_hot_wheels::msg::Waypoint>::SharedPtr waypoint_sub_;
     
     rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr drive_pub_;
+
+    
 
 
 public:
@@ -84,6 +87,8 @@ public:
             cur_wpt_topic_, 1, std::bind(&PurePursuit::waypoint_callback, this, std::placeholders::_1));
         drive_pub_ = this->create_publisher<ackermann_msgs::msg::AckermannDriveStamped>(
             drive_topic_, 1);
+
+        
         
  
         this->declare_parameter("Kp", 0.1);

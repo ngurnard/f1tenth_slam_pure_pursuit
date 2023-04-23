@@ -32,8 +32,8 @@ private:
     std::string wpt_topic_ = "/waypoint";
     std::string vis_waypoint_topic_ = "/waypoint_vis";
     std::string vis_cur_point_topic_ = "/cur_point_vis";
-    // std::string pose_topic_ = "/pf/viz/inferred_pose";
-    std::string pose_topic_ = "/pf/odom/pose";
+    std::string pose_topic_ = "/pf/viz/inferred_pose";
+    // std::string pose_topic_ = "/pf/odom/pose";
 
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr pose_sub_;
 

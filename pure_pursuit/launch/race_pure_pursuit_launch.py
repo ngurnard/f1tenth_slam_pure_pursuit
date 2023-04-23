@@ -41,6 +41,11 @@ def generate_launch_description():
                 }
             ]
         ),
+        # Node(
+        #     package='pure_pursuit',
+        #     executable='bagger.py',
+        #     name='bagger',
+        # ),
         IncludeLaunchDescription
         (
                 PythonLaunchDescriptionSource

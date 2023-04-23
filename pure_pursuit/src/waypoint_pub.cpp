@@ -142,7 +142,9 @@ private:
 
     void pose_speed_callback(const geometry_msgs::msg::PoseStamped::ConstSharedPtr speed_msg)
     {
-        speed_pub_->publish(speed_msg);
+        geometry_msgs::msg::PoseStamped speed;
+        speed.pose = speed_msg->pose;
+        speed_pub_->publish(speed);
     }
 
     void csv_to_waypoints()

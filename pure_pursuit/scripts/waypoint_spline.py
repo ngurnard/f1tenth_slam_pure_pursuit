@@ -9,10 +9,10 @@ y = []
 yaw = []
 speed = []
 L = []
-path = "/home/rithwik/UPenn/ESE615/sim_ws/src/lab-5-slam-and-pure-pursuit-hot-wheels/pure_pursuit/waypoints/"
-# path = '/home/manasa/sim_ws/src/pure_pursuit/waypoints/'
+# path = "/home/rithwik/UPenn/ESE615/sim_ws/src/lab-5-slam-and-pure-pursuit-hot-wheels/pure_pursuit/waypoints/"
+path = '/home/manasa/sim_ws/src/pure_pursuit/waypoints/'
 # with open(path+'just_to_interpolate.csv', 'r') as csvfile:
-with open(path+'waypoints_recollect_1.csv', 'r') as csvfile:
+with open(path+'waypoints_recollect_3.csv', 'r') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
 
     for row in reader:
@@ -43,7 +43,7 @@ L_sampled = L_spline(axes_sampled)
 
 # Save the interpolated waypoints
 # with open(path+'dense_straight_only.csv', 'w') as csvfile:
-with open(path+'interpolated.csv', 'w') as csvfile:
+with open(path+'raceline2.csv', 'w') as csvfile:
     writer = csv.writer(csvfile, delimiter=',')
 
     for i in range(len(x_sampled)):
